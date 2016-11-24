@@ -1,16 +1,18 @@
 const low = require('lowdb');
+const asyncStore = require('lowdb/lib/file-async');
+const uuid = require('uuid');
 const underscoreDB = require('underscore-db');
+
+const utils = require('./utils');
 
 const initialData = {
   lists: [],
 };
 
-// https://gist.github.com/LeverOne/1308368
-function uuid(a,b){for(b=a='';a++<36;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');return b}  // eslint-disable-line
 
 class SimplistStorage {
   constructor(dbFile, options) {
-    this.db = low(dbFile);
+    this.db = low(dbFile, { storage: asyncStore });
     this.db._.mixin(underscoreDB);
     this.db.defaults(initialData).value();
     this.publish = options.publish.bind(this) || function noop() {};
@@ -22,16 +24,33 @@ class SimplistStorage {
     return this.db.get('lists');
   }
   getList(id) {
-    return this.db.get('lists').getById(id);
-  }
-  addItemToList(id, content) {
-    const list = this.getList(id);
+    const list = this.db.get('lists').getById(id);
     if (!list) {
       throw new Error(`List with id ${id} not found`);
     }
+    return list;
+  }
+  updateList(id, data) {
+    const list = this.getList(id);
+    const updatedList = list.assign(data);
+    this.publish(id, updatedList.value());
+    return updatedList;
+  }
+  addItemToList(id, content) {
+    const list = this.getList(id);
     const newItem = { id: uuid(), checked: false, content };
     const updatedList = list.assign({ items: list.value().items.concat([newItem]) });
-    this.publish(id, updatedList);
+    this.publish(id, updatedList.value());
+    return updatedList;
+  }
+  toggleItem({ listID, itemID }) {
+    const list = this.getList(listID);
+    const items = list.value().items;
+    const newItems = utils.updateInArray(items, item => item.id === itemID, (oldItem) => {
+      return { checked: !oldItem.checked };
+    });
+    const updatedList = list.assign({ items: newItems });
+    this.publish(listID, updatedList.value());
     return updatedList;
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IndexLink } from 'react-router';
+import { IndexLink, Link } from 'react-router';
 
 
 export default class App extends React.Component {
@@ -9,10 +9,10 @@ export default class App extends React.Component {
         <div className="header clearfix">
           <nav>
             <ul className="nav nav-pills pull-right">
-              <li role="presentation"><IndexLink to="/">Home</IndexLink></li>
+              <li role="presentation"><Link to="/create">Create list</Link></li>
             </ul>
           </nav>
-          <h3 className="text-muted">Simplist</h3>
+          <h3 className="text-muted"><IndexLink to="/">Simplist</IndexLink></h3>
         </div>
         {this.props.children}
       </div>

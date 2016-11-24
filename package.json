@@ -21,11 +21,14 @@
     "good-console": "^6.3.1",
     "good-squeeze": "^5.0.1",
     "hapi": "^15.2.0",
+    "inert": "^4.0.2",
     "joi": "^10.0.1",
+    "lodash": "^4.17.2",
     "lowdb": "^0.14.0",
     "nes": "^6.3.1",
     "socket.io": "^1.6.0",
-    "underscore-db": "^0.12.1"
+    "underscore-db": "^0.12.1",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",

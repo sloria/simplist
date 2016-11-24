@@ -44,8 +44,23 @@ function addItemToList({ id, content }) {
   });
 }
 
+function toggleItem({ listID, itemID }) {
+  return fetchJSON(`/api/lists/${listID}/items/${itemID}/toggle`, {
+    method: 'POST',
+  });
+}
+
+function updateList({ id, data }) {
+  return fetchJSON(`/api/lists/${id}`, {
+    method: 'PATCH',
+    body: data,
+  });
+}
+
 const Client = {
   createList,
   addItemToList,
+  toggleItem,
+  updateList,
 };
 export default Client;

@@ -10,6 +10,7 @@ server.connection({
   port: 3001,
 });
 
+// Set up logging
 
 server.register({
   register: Good,
@@ -36,6 +37,8 @@ server.register([Nes], () => {
       server.publish(`/lists/${listID}`, payload);
     },
   });
+
+  // API
 
   server.route({
     method: 'GET',
@@ -66,13 +69,13 @@ server.register([Nes], () => {
     handler: (request, reply) => {
       const listID = request.params.listID;
       const content = request.payload.content;
-      let item;
+      let updatedList;
       try {
-        item = db.addItemToList(listID, content);
+        updatedList = db.addItemToList(listID, content);
       } catch (e) { // TODO: Catch specific error
         return reply(Boom.notFound(`List with id ${listID} not found.`));
       }
-      return reply(item.value());
+      return reply(updatedList.value());
     },
     config: {
       validate: {
@@ -83,7 +86,49 @@ server.register([Nes], () => {
     },
   });
 
+  server.route({
+    method: 'PATCH',
+    path: '/api/lists/{listID}',
+    handler: (request, reply) => {
+      const listID = request.params.listID;
+      let updatedList;
+      try {
+        updatedList = db.updateList(listID, request.payload);
+      } catch (e) { // TODO: Catch specific error
+        return reply(Boom.notFound(`List with id ${listID} not found.`));
+      }
+      return reply(updatedList.value());
+    },
+    config: {
+      validate: {
+        payload: {
+          title: Joi.string(),
+        },
+      },
+    },
+  });
+
+  server.route({
+    method: 'POST',
+    path: '/api/lists/{listID}/items/{itemID}/toggle',
+    handler: (request, reply) => {
+      const { listID, itemID } = request.params;
+      let updatedList;
+      try {
+        updatedList = db.toggleItem({ listID, itemID });
+      } catch (e) { // TODO: Catch specific error
+        return reply(Boom.notFound(`List with id ${listID} not found.`));
+      }
+      return reply(updatedList.value());
+    },
+  });
+
+  // Websocket subscriptions
+
   server.subscription('/lists/{listID}');
+
+
+  // Start the server
 
   server.start((err) => {
     if (err) { throw err; }

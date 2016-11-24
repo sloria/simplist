@@ -1,19 +1,17 @@
 import React, { PropTypes as t } from 'react';
 
 
-export class ListItem extends React.Component {
-  render() {
-    const { text, ...props } = this.props;
-    return (
-      <li {...props}>{text}</li>
+function ListItem(props) {
+  const { content, ...rest } = props;
+  return (
+    <li {...rest}>{content}</li>
 
-    );
-  }
+  );
 }
 
 export default class List extends React.Component {
   static propTypes = {
-    items: t.arrayOf(t.string),
+    items: t.arrayOf(t.object),
   }
   render() {
     // TODO: Use an actual key
@@ -21,7 +19,7 @@ export default class List extends React.Component {
       <ul>
         {this.props.items.map((item) => {
           return (
-            <ListItem text={item} key={item} />
+            <ListItem content={item.content} key={item.id} />
           );
         })}
       </ul>

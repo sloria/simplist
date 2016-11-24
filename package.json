@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "babel-node server",
+    "server": "nodemon server",
     "client": "babel-node start-client.js"
   },
   "author": "Steven Loria",
@@ -15,9 +15,17 @@
     "babel-core": "6.18.2",
     "babel-preset-airbnb": "^2.1.1",
     "babel-preset-stage-0": "6.16.0",
+    "boom": "^4.2.0",
     "fs": "0.0.1-security",
+    "good": "^7.0.2",
+    "good-console": "^6.3.1",
+    "good-squeeze": "^5.0.1",
     "hapi": "^15.2.0",
-    "socket.io": "^1.6.0"
+    "joi": "^10.0.1",
+    "lowdb": "^0.14.0",
+    "nes": "^6.3.1",
+    "socket.io": "^1.6.0",
+    "underscore-db": "^0.12.1"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
@@ -26,6 +34,7 @@
     "eslint-config-airbnb": "^12.0.0",
     "eslint-plugin-import": "^1.16.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.4.1"
+    "eslint-plugin-react": "^6.4.1",
+    "nodemon": "^1.11.0"
   }
 }

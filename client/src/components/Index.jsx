@@ -8,12 +8,11 @@ class Index extends Component {
       <Jumbotron>
         <h1>Simplist</h1>
         <p className="lead">Real-time collaborative lists made easy</p>
-        <LinkContainer to="/new">
+        <LinkContainer to="/create">
           <Button bsSize="large" bsStyle="success">
             Create new list
           </Button>
         </LinkContainer>
-        <p>No sign-up necessary</p>
       </Jumbotron>
     );
   }

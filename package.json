@@ -1,12 +1,16 @@
 {
   "name": "simplist-server",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "nodemon server",
-    "client": "babel-node start-client.js"
+    "start": "NODE_ENV=production npm run build && npm run server",
+    "start:dev": "concurrently \"npm run server:dev\" \"npm run client\"",
+    "server": "node server",
+    "server:dev": "nodemon server",
+    "client": "node start-client.js",
+    "build": "cd client && npm run build",
+    "preinstall": "cd client && npm install"
   },
   "author": "Steven Loria",
   "license": "MIT",

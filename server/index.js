@@ -1,9 +1,13 @@
+const path = require('path');
 const Hapi = require('hapi');
 const Boom = require('boom');
 const Good = require('good');
 const Joi = require('joi');
 const Nes = require('nes');
+const Inert = require('inert');
+
 const SimplistStorage = require('./SimplistStorage');
+
 
 const server = new Hapi.Server();
 server.connection({
@@ -11,7 +15,6 @@ server.connection({
 });
 
 // Set up logging
-
 server.register({
   register: Good,
   options: {
@@ -31,6 +34,25 @@ server.register({
   },
 });
 
+
+// Serve built static files on production
+// In development, we use the webpack-dev-server
+if (process.env.NODE_ENV === 'production') {
+  server.register(Inert, () => {
+    server.route({
+      method: 'GET',
+      path: '/{param*}',
+      handler: {
+        directory: {
+          path: path.join(__dirname, '..', 'client', 'build'),
+          redirectToSlash: true,
+          index: true,
+        }
+      }
+    })
+  });
+}
+
 server.register([Nes], () => {
   const db = new SimplistStorage('db.json', {
     publish: (listID, payload) => {
@@ -38,8 +60,7 @@ server.register([Nes], () => {
     },
   });
 
-  // API
-
+  // API Routes
   server.route({
     method: 'GET',
     path: '/api/lists/{listID}',
@@ -124,15 +145,11 @@ server.register([Nes], () => {
   });
 
   // Websocket subscriptions
-
   server.subscription('/lists/{listID}');
 
-
   // Start the server
-
   server.start((err) => {
     if (err) { throw err; }
     console.log('Server running at:', server.info.uri);
-    server.publish('/lists/', { id: 'abc12', title: 'Test' });
   });
 });

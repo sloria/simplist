@@ -12,7 +12,7 @@ export default class ListItem extends React.Component {
     };
   }
   handleItemChecked = () => {
-    this.props.onItemChecked.bind(this, this.props.id);
+    this.props.onItemChecked(this.props.id);
   }
   handleMouseOver = () => {
     this.setState({ displayControls: true });
@@ -21,16 +21,15 @@ export default class ListItem extends React.Component {
     this.setState({ displayControls: false });
   }
   render() {
-    const { content, checked, ...rest } = this.props;
     return (
       <li className="ListItem" onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut}>
         <Checkbox
           onChange={this.handleItemChecked}
-          checked={checked} {...rest}
+          checked={this.props.checked}
         >
-          <ReactMarkdown containerTagName="span" source={content} />
+          <ReactMarkdown containerTagName="span" source={this.props.content} />
         </Checkbox>
-        {this.state.displayControls ? '[ Delete ]' : ''}
+        {/* {this.state.displayControls ? '[ Delete ]' : ''} */}
 
         {/* <pre>{JSON.stringify(this.state)}</pre> */}
       </li>

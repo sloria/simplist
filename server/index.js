@@ -101,7 +101,7 @@ server.register([Nes], () => {
     config: {
       validate: {
         payload: {
-          content: Joi.string().required(),
+          content: Joi.string().max(500).required(),
         },
       },
     },
@@ -123,7 +123,7 @@ server.register([Nes], () => {
     config: {
       validate: {
         payload: {
-          title: Joi.string(),
+          title: Joi.string().max(200),
         },
       },
     },

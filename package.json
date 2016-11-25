@@ -10,6 +10,7 @@
     "server:dev": "nodemon server",
     "client": "node start-client.js",
     "build": "cd client && npm run build",
+    "test:server": "lab -v server/test",
     "preinstall": "cd client && npm install"
   },
   "author": "Steven Loria",
@@ -19,6 +20,7 @@
     "babel-core": "6.18.2",
     "babel-preset-airbnb": "^2.1.1",
     "babel-preset-stage-0": "6.16.0",
+    "blipp": "^2.3.0",
     "boom": "^4.2.0",
     "fs": "0.0.1-security",
     "good": "^7.0.2",
@@ -37,12 +39,14 @@
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
+    "code": "^4.0.0",
     "concurrently": "3.1.0",
     "eslint": "^3.8.1",
     "eslint-config-airbnb": "^12.0.0",
     "eslint-plugin-import": "^1.16.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.4.1",
+    "lab": "^11.2.1",
     "nodemon": "^1.11.0"
   }
 }

@@ -20,7 +20,6 @@ function ListDetail(props) {
       <h3>
         <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
       </h3>
-      {/* <h3>{props.title}</h3> */}
       <form onSubmit={props.onSubmit}>
         <FormGroup controlId="formBasicText">
           <FormControl

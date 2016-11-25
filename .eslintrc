@@ -12,6 +12,7 @@
     "react/no-multi-comp": 0,
     "react/forbid-prop-types": 0,
     "arrow-body-style": 0,
-    "no-return-assign": 0
+    "no-return-assign": 0,
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
   }
 }

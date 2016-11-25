@@ -9,7 +9,6 @@ const initialData = {
   lists: [],
 };
 
-
 class SimplistStorage {
   constructor(dbFile, options) {
     this.db = low(dbFile, { storage: asyncStore });
@@ -75,4 +74,18 @@ class SimplistStorage {
   }
 }
 
-module.exports = SimplistStorage;
+exports.SimplistStorage = SimplistStorage;
+
+exports.register = (server, opts, next) => {
+  function getStorage() {
+    return new SimplistStorage(opts.dbFile, {
+      publish: opts.publish,
+    });
+  }
+  server.decorate('request', 'getStorage', getStorage);
+  next();
+};
+
+exports.register.attributes = {
+  name: 'simplist-storage',
+};

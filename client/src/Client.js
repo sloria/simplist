@@ -17,6 +17,7 @@ function parseJSON(response) {
 
 
 function fetchJSON(url, options) {
+  options = options || {};  // eslint-disable-line
   const defaults = {
     accept: 'application/json',
     headers: {
@@ -28,6 +29,10 @@ function fetchJSON(url, options) {
     opts.body = JSON.stringify(options.body);
   }
   return fetch(url, opts).then(checkStatus).then(parseJSON);
+}
+
+function getList(id) {
+  return fetchJSON(`/api/lists/${id}`);
 }
 
 function createList({ title }) {
@@ -58,6 +63,7 @@ function updateList({ id, data }) {
 }
 
 const Client = {
+  getList,
   createList,
   addItemToList,
   toggleItem,

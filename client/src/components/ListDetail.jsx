@@ -5,6 +5,7 @@ import { RIEInput } from 'riek';
 
 import Client from '../Client';
 import ItemList from './ItemList';
+import ErrorMessage from './ErrorMessage';
 
 import { updateInArray } from '../utils';
 import config from '../../../config';
@@ -47,19 +48,24 @@ export default class ListDetailContainer extends React.Component {
       title: '',
       value: '',
       items: [],
+      error: null,
     };
   }
   componentDidMount() {
     const listID = this.props.params.listID;
+    const router = this.props.router;
 
-    fetch(`/api/lists/${listID}`)
-      .then(resp => resp.json())
+    Client.getList(listID)
       .then((json) => {
         this.setState({
           title: json.title,
           items: json.items || [],
         });
+      })
+      .catch((error) => {
+        this.setState({ error });
       });
+
     client.connect(() => {
       function handler(payload) {
         this.setState({ title: payload.title, items: payload.items });
@@ -105,6 +111,9 @@ export default class ListDetailContainer extends React.Component {
   }
 
   render() {
+    if (this.state.error) {
+      return <ErrorMessage error={this.state.error} />
+    }
     return (
       <ListDetail
         onTitleChanged={this.handleTitleChanged}

@@ -7,8 +7,10 @@ import Client from '../Client';
 import ItemList from './ItemList';
 
 import { updateInArray } from '../utils';
+import config from '../../../config';
 
-const client = new Nes.Client('ws://localhost:3001');
+const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
+const client = new Nes.Client(websocketURI);
 
 function ListDetail(props) {
   const items = props.items;
@@ -60,11 +62,9 @@ export default class ListDetailContainer extends React.Component {
       });
     client.connect(() => {
       function handler(payload) {
-        console.log('Websocket payload:');
-        console.log(payload);
         this.setState({ title: payload.title, items: payload.items });
       }
-      client.subscribe(`/lists/${listID}`, handler.bind(this), (err) => {
+      client.subscribe(`/s/lists/${listID}`, handler.bind(this), (err) => {
         if (err) { throw err; }
       });
     });

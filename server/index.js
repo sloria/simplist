@@ -4,14 +4,17 @@ const Boom = require('boom');
 const Good = require('good');
 const Joi = require('joi');
 const Nes = require('nes');
+
 const Inert = require('inert');
 
 const SimplistStorage = require('./SimplistStorage');
 
+const config = require('../config');
+
 
 const server = new Hapi.Server();
 server.connection({
-  port: process.env.PORT || 3001,
+  port: config.port,
 });
 
 // Set up logging
@@ -64,7 +67,7 @@ if (process.env.NODE_ENV === 'production') {
 server.register([Nes], () => {
   const db = new SimplistStorage('db.json', {
     publish: (listID, payload) => {
-      server.publish(`/lists/${listID}`, payload);
+      server.publish(`/s/lists/${listID}`, payload);
     },
   });
 

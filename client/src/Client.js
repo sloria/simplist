@@ -55,6 +55,19 @@ function toggleItem({ listID, itemID }) {
   });
 }
 
+function editItem({ listID, itemID, data }) {
+  return fetchJSON(`/api/lists/${listID}/items/${itemID}`, {
+    method: 'PATCH',
+    body: data,
+  });
+}
+
+function deleteItem({ listID, itemID }) {
+  return fetchJSON(`/api/lists/${listID}/items/${itemID}`, {
+    method: 'DELETE',
+  });
+}
+
 function updateList({ id, data }) {
   return fetchJSON(`/api/lists/${id}`, {
     method: 'PATCH',
@@ -68,5 +81,7 @@ const Client = {
   addItemToList,
   toggleItem,
   updateList,
+  editItem,
+  deleteItem,
 };
 export default Client;

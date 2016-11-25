@@ -34,7 +34,12 @@ function ListDetail(props) {
         </FormGroup>
 
         {/* <pre> {JSON.stringify(props, null, 2)}</pre> */}
-        <ItemList onItemChecked={props.onItemChecked} items={items} />
+        <ItemList
+          onMenuItemClick={props.onMenuItemClick}
+          onItemChecked={props.onItemChecked}
+          finishEditing={props.finishEditing}
+          cancelEditing={props.cancelEditing}
+          items={items} />
       </form>
     </div>
   );
@@ -53,8 +58,6 @@ export default class ListDetailContainer extends React.Component {
   }
   componentDidMount() {
     const listID = this.props.params.listID;
-    const router = this.props.router;
-
     Client.getList(listID)
       .then((json) => {
         this.setState({
@@ -103,6 +106,43 @@ export default class ListDetailContainer extends React.Component {
     Client.toggleItem({ listID, itemID });
   }
 
+  handleMenuItemClick = (e, itemID, action) => {
+    const listID = this.props.params.listID;
+    const menuActions = {
+      delete: () => {
+        Client.deleteItem({ listID, itemID });
+        this.setState({ items: this.state.items.filter(item => item.id !== itemID) });
+      },
+      edit: () => {
+        const items = this.state.items;
+        const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+          return { editing: true };
+        });
+        this.setState({ items: newItems });
+      }
+    };
+
+    menuActions[action]();
+  }
+
+  finishEditing = (itemID, newValue) => {
+    const listID = this.props.params.listID;
+    const items = this.state.items;
+    const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+      return { editing: false, content: newValue };
+    });
+    this.setState({ items: newItems });
+    Client.editItem({ listID, itemID, data: { content: newValue } });
+  }
+
+  cancelEditing = (itemID) => {
+    const items = this.state.items;
+    const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+      return { editing: false };
+    });
+    this.setState({ items: newItems });
+  }
+
   handleTitleChanged = (data) => {
     const title = data.title || 'Untitled list';
     this.setState({ title });
@@ -118,6 +158,9 @@ export default class ListDetailContainer extends React.Component {
       <ListDetail
         onTitleChanged={this.handleTitleChanged}
         onItemChecked={this.handleItemChecked}
+        onMenuItemClick={this.handleMenuItemClick}
+        finishEditing={this.finishEditing}
+        cancelEditing={this.cancelEditing}
         title={this.state.title}
         items={this.state.items}
         value={this.state.value}

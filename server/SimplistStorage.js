@@ -53,6 +53,26 @@ class SimplistStorage {
     this.publish(listID, updatedList.value());
     return updatedList;
   }
+  editItem({ listID, itemID, data }) {
+    const list = this.getList(listID);
+    const items = list.value().items;
+    const newItems = utils.updateInArray(items, item => item.id === itemID, () => {
+      return data;
+    });
+    const updatedList = list.assign({ items: newItems });
+    this.publish(listID, updatedList.value());
+    return updatedList;
+  }
+  removeItem({ listID, itemID }) {
+    const list = this.getList(listID);
+    const items = list.value().items;
+
+    const newItems = items.filter(item => item.id !== itemID);
+
+    const updatedList = list.assign({ items: newItems });
+    this.publish(listID, updatedList.value());
+    return updatedList;
+  }
 }
 
 module.exports = SimplistStorage;

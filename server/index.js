@@ -141,6 +141,44 @@ server.register([Nes], () => {
   });
 
   server.route({
+    method: 'DELETE',
+    path: '/api/lists/{listID}/items/{itemID}',
+    handler: (request, reply) => {
+      const { listID, itemID } = request.params;
+      let updatedList;
+      try {
+        updatedList = db.removeItem({ listID, itemID });
+      } catch (e) { // TODO: Catch specific error
+        return reply(Boom.notFound(`List with id ${listID} not found.`));
+      }
+      return reply(updatedList.value());
+    },
+  });
+
+  server.route({
+    method: 'PATCH',
+    path: '/api/lists/{listID}/items/{itemID}',
+    handler: (request, reply) => {
+      const { listID, itemID } = request.params;
+      let updatedList;
+      try {
+        updatedList = db.editItem({ listID, itemID, data: request.payload });
+      } catch (e) { // TODO: Catch specific error
+        return reply(Boom.notFound(`List with id ${listID} not found.`));
+      }
+      return reply(updatedList.value());
+    },
+    config: {
+      validate: {
+        payload: {
+          content: Joi.string().max(1000),
+          checked: Joi.boolean(),
+        },
+      },
+    },
+  });
+
+  server.route({
     method: 'POST',
     path: '/api/lists/{listID}/items/{itemID}/toggle',
     handler: (request, reply) => {

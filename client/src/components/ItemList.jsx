@@ -9,9 +9,7 @@ export default class ItemList extends React.Component {
   static propTypes = {
     items: t.arrayOf(t.object),
     onItemChecked: t.func.isRequired,
-  }
-  handleItemChecked = (itemID) => {
-    this.props.onItemChecked(itemID);
+    onMenuItemClick: t.func.isRequired,
   }
   render() {
     return (
@@ -19,8 +17,12 @@ export default class ItemList extends React.Component {
         {this.props.items.map((item) => {
           return (
             <ListItem
+              editing={item.editing || false}
               id={item.id}
-              onItemChecked={this.handleItemChecked}
+              onItemChecked={this.props.onItemChecked}
+              finishEditing={this.props.finishEditing}
+              cancelEditing={this.props.cancelEditing}
+              onMenuItemClick={this.props.onMenuItemClick}
               checked={item.checked}
               content={item.content}
               key={item.id}

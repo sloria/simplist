@@ -11,7 +11,7 @@ const SimplistStorage = require('./SimplistStorage');
 
 const server = new Hapi.Server();
 server.connection({
-  port: 3001,
+  port: process.env.PORT || 3001,
 });
 
 // Set up logging

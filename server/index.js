@@ -41,15 +41,23 @@ if (process.env.NODE_ENV === 'production') {
   server.register(Inert, () => {
     server.route({
       method: 'GET',
-      path: '/{param*}',
+      path: '/static/{param*}',
       handler: {
         directory: {
-          path: path.join(__dirname, '..', 'client', 'build'),
+          path: path.join(__dirname, '..', 'client', 'build', 'static'),
           redirectToSlash: true,
           index: true,
-        }
-      }
-    })
+        },
+      },
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/{param*}',
+      handler: {
+        file: path.join(__dirname, '..', 'client', 'build', 'index.html'),
+      },
+    });
   });
 }
 
@@ -145,7 +153,7 @@ server.register([Nes], () => {
   });
 
   // Websocket subscriptions
-  server.subscription('/lists/{listID}');
+  server.subscription('/s/lists/{listID}');
 
   // Start the server
   server.start((err) => {

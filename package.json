@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production npm run build && npm run server",
+    "start": "NODE_ENV=production npm run build && NODE_ENV=production npm run server",
     "start:dev": "NODE_ENV=development concurrently \"npm run server:dev\" \"npm run client\"",
     "server": "node server",
     "server:dev": "nodemon server",

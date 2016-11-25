@@ -11,10 +11,18 @@ const initialData = {
 
 class SimplistStorage {
   constructor(dbFile, options) {
-    this.db = low(dbFile, { storage: asyncStore });
+    if (!dbFile || dbFile === ':memory:') {
+      this.db = low();
+    } else {
+      this.db = low(dbFile, { storage: asyncStore });
+    }
     this.db._.mixin(underscoreDB);
     this.db.defaults(initialData).value();
-    this.publish = options.publish.bind(this) || function noop() {};
+    if (options.publish) {
+      this.publish = options.publish.bind(this);
+    } else {
+      this.publish = function noop() {};
+    }
   }
   createList({ title }) {
     return this.db.get('lists').insert({ title, items: [] });
@@ -28,6 +36,9 @@ class SimplistStorage {
       throw new Error(`List with id ${id} not found`);
     }
     return list;
+  }
+  clearAll() {
+    this.db.setState(initialData);
   }
   updateList(id, data) {
     const list = this.getList(id);
@@ -83,6 +94,7 @@ exports.register = (server, opts, next) => {
     });
   }
   server.decorate('request', 'getStorage', getStorage);
+  server.decorate('server', 'getStorage', getStorage);
   next();
 };
 

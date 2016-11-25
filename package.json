@@ -11,6 +11,9 @@
     "client": "node start-client.js",
     "build": "cd client && npm run build",
     "test:server": "lab -v server/test",
+    "test:server:debug": "node --inspect --debug-brk node_modules/.bin/lab server/test",
+    "test:client": "cd client && CI=true npm test",
+    "test": "npm run test:server && npm run test:client",
     "preinstall": "cd client && npm install"
   },
   "author": "Steven Loria",

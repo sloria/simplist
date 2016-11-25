@@ -6,6 +6,7 @@
 const Boom = require('boom');
 const Joi = require('joi');
 const Nes = require('nes');
+const _ = require('lodash');
 
 
 function registerAPIRoutes(server, next) {
@@ -36,7 +37,7 @@ function registerAPIRoutes(server, next) {
     path: '/api/lists/',
     handler: (request, reply) => {
       const db = request.getStorage();
-      const title = request.payload.title || '';
+      const title = _.get(request, 'payload.title') || '';
       const newList = db.createList({ title }).value();
       return reply(newList);
     },

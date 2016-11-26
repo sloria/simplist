@@ -1,5 +1,6 @@
 /**
- * Simplist API Hapi plugin. Depends on the simplist-service plugin for DB operations
+ * Simplist API Hapi plugin. Routes and their handlers are defined here.
+ * Depends on the simplist-service plugin for DB operations
  * and the nes plugin for WebSocket integration
  */
 
@@ -141,7 +142,7 @@ function registerAPIRoutes(server, next) {
     config: {
       validate: {
         payload: {
-          content: Joi.string().max(1000),
+          content: Joi.string().max(500),
           checked: Joi.boolean(),
         },
       },

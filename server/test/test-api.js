@@ -1,5 +1,6 @@
 const Code = require('code');
 const Lab = require('lab');
+const _ = require('lodash');
 
 const makeServer = require('./make-server');
 
@@ -137,6 +138,22 @@ describe('API', () => {
       }).catch(done);
     });
 
+    it('should error if content is too long', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'POST',
+          url: `/api/lists/${newList._id}/items/`,
+          payload: {
+            content: _.repeat('a', 501),
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(400);
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should modify the requested list', (done) => {
       service.createList().then((newList) => {
         expect(newList.items.length).to.equal(0);  // sanity check
@@ -175,6 +192,22 @@ describe('API', () => {
             expect(result.title).to.equal('Foo bar baz');
             done();
           });
+        });
+      });
+    });
+
+    it('should error if title is too long', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            title: _.repeat('a', 201),
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(400);
+          done();
         });
       });
     });
@@ -221,6 +254,26 @@ describe('API', () => {
               expect(result.checked).to.be.true();
               done();
             });
+          });
+        });
+      });
+    });
+
+    it('should error if content too long', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0]._id;
+          const options = {
+            method: 'PATCH',
+            url: `/api/lists/${list._id}/items/${itemID}`,
+            payload: {
+              content: _.repeat('a', 501),
+              checked: true,
+            },
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(400);
+            done();
           });
         });
       });

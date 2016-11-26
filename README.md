@@ -1,4 +1,4 @@
-# simplist
+# Simplist
 
 One-click, collaborative lists.
 

@@ -1,3 +1,8 @@
+/**
+ * Simplist "service" plugin. Exposes a `SimplistService` object on
+ * `request.simplist.service` and `server.simplist.service`. This contains
+ * the business and data storage logic.
+ */
 const shortid = require('shortid');
 const _ = require('lodash');
 
@@ -6,13 +11,9 @@ const generateID = shortid;
 class RecordNotFoundError extends Error {}
 
 class SimplistService {
-  constructor(db, options) {
+  constructor(db, { publish = function noop() {} } = {}) {
     this.db = db;
-    if (options.publish) {
-      this.publish = options.publish.bind(this);
-    } else {
-      this.publish = function noop() {};
-    }
+    this.publish = publish;
   }
   createList({ title = '' } = {}) {
     const newList = {
@@ -184,6 +185,7 @@ exports.register = (server, opts, next) => {
     const service = new SimplistService(database, {
       publish: opts.publish,
     });
+    // Expose the SimplistService instance on request and server
     const decorations = {
       service,
     };

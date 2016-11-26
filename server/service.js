@@ -79,7 +79,7 @@ class SimplistService {
     const validFields = ['title'];
     const validData = _.pick(data, validFields);
     return new Promise((resolve, reject) => {
-      this.db.collection('lists').updateOne({ _id }, validData, (err, result) => {
+      this.db.collection('lists').updateOne({ _id }, { $set: validData }, (err, result) => {
         if (err) { reject(err); }
         if (!result.matchedCount) {
           reject(new RecordNotFoundError(`List with _id ${_id} not found.`));

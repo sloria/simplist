@@ -32,34 +32,34 @@ export default class ListItem extends React.Component {
     }
   }
   handleItemChecked = () => {
-    this.props.onItemChecked(this.props.id);
+    this.props.onItemChecked(this.props.itemID);
   }
   handleDelete = (e) => {
-    this.props.onMenuItemClick(e, this.props.id, 'delete');
+    this.props.onMenuItemClick(e, this.props.itemID, 'delete');
   }
   handleEdit = (e) => {
-    this.props.onMenuItemClick(e, this.props.id, 'edit');
+    this.props.onMenuItemClick(e, this.props.itemID, 'edit');
   }
   handleChange = (e) => {
     this.setState({ value: e.target.value });
   }
   handleKeyDown = (event) => {
     if (event.keyCode === 13) { // Enter
-      this.props.finishEditing(this.props.id, this.state.value);
+      this.props.finishEditing(this.props.itemID, this.state.value);
     } else if (event.keyCode === 27) {  // Esc
-      this.props.cancelEditing(this.props.id, this.state.value);
+      this.props.cancelEditing(this.props.itemID, this.state.value);
     }
   }
   handleBlur = () => {
-    this.props.finishEditing(this.props.id, this.state.value);
+    this.props.finishEditing(this.props.itemID, this.state.value);
   }
   render() {
-    const menuID = `${this.props.id}__menu`;
+    const menuID = `${this.props.itemID}__menu`;
     let content;
     if (this.props.editing) {
       content = (
         <FieldGroup
-          id={`editItem-${this.props.id}`}
+          id={`editItem-${this.props.itemID}`}
           type="text"
           value={this.state.value}
           onChange={this.handleChange}

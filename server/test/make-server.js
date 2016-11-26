@@ -1,15 +1,20 @@
+require('dotenv').config();
 const Hapi = require('hapi');
-
-const SimplistStorage = require('../storage');
+const SimplistService = require('../service');
 const SimplistAPI = require('../api');
+const SimplistDatabase = require('../database');
 
 module.exports = function makeTestServer(done) {
   const plugins = [
     {
-      register: SimplistStorage,
+      register: SimplistDatabase,
       options: {
-        dbFile: ':memory:',
+        url: process.env.TEST_DATABASE,
       },
+    },
+    {
+      register: SimplistService,
+      options: {},
     },
     SimplistAPI,
   ];

@@ -18,14 +18,14 @@ export default class ItemList extends React.Component {
           return (
             <ListItem
               editing={item.editing || false}
-              id={item.id}
+              itemID={item._id}
               onItemChecked={this.props.onItemChecked}
               finishEditing={this.props.finishEditing}
               cancelEditing={this.props.cancelEditing}
               onMenuItemClick={this.props.onMenuItemClick}
               checked={item.checked}
               content={item.content}
-              key={item.id}
+              key={item._id}
             />
           );
         })}

@@ -8,7 +8,7 @@ import ItemList from './ItemList';
 import ErrorMessage from './ErrorMessage';
 
 import { updateInArray } from '../utils';
-import config from '../../../config';
+import config from '../../../shared-config';
 
 const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
 const client = new Nes.Client(websocketURI);
@@ -38,7 +38,8 @@ function ListDetail(props) {
           onItemChecked={props.onItemChecked}
           finishEditing={props.finishEditing}
           cancelEditing={props.cancelEditing}
-          items={items} />
+          items={items}
+        />
       </form>
     </div>
   );
@@ -98,7 +99,7 @@ export default class ListDetailContainer extends React.Component {
   handleItemChecked = (itemID) => {
     const listID = this.props.params.listID;
     const items = this.state.items;
-    const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+    const newItems = updateInArray(items, item => item._id === itemID, (oldItem) => {
       return { checked: !oldItem.checked };
     });
     this.setState({ items: newItems });
@@ -110,15 +111,15 @@ export default class ListDetailContainer extends React.Component {
     const menuActions = {
       delete: () => {
         Client.deleteItem({ listID, itemID });
-        this.setState({ items: this.state.items.filter(item => item.id !== itemID) });
+        this.setState({ items: this.state.items.filter(item => item._id !== itemID) });
       },
       edit: () => {
         const items = this.state.items;
-        const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+        const newItems = updateInArray(items, item => item._id === itemID, () => {
           return { editing: true };
         });
         this.setState({ items: newItems });
-      }
+      },
     };
 
     menuActions[action]();
@@ -127,7 +128,7 @@ export default class ListDetailContainer extends React.Component {
   finishEditing = (itemID, newValue) => {
     const listID = this.props.params.listID;
     const items = this.state.items;
-    const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+    const newItems = updateInArray(items, item => item._id === itemID, () => {
       return { editing: false, content: newValue };
     });
     this.setState({ items: newItems });
@@ -136,7 +137,7 @@ export default class ListDetailContainer extends React.Component {
 
   cancelEditing = (itemID) => {
     const items = this.state.items;
-    const newItems = updateInArray(items, item => item.id === itemID, (oldItem) => {
+    const newItems = updateInArray(items, item => item._id === itemID, () => {
       return { editing: false };
     });
     this.setState({ items: newItems });
@@ -151,7 +152,7 @@ export default class ListDetailContainer extends React.Component {
 
   render() {
     if (this.state.error) {
-      return <ErrorMessage error={this.state.error} />
+      return <ErrorMessage error={this.state.error} />;
     }
     return (
       <ListDetail

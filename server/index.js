@@ -1,14 +1,15 @@
+require('dotenv').config();
 const path = require('path');
 const Hapi = require('hapi');
 const Good = require('good');
 const Blipp = require('blipp');
-
 const Inert = require('inert');
 
-const SimplistStorage = require('./storage');
+const SimplistService = require('./service');
+const SimplistDatabase = require('./database');
 const SimplistAPI = require('./api');
 
-const config = require('../config');
+const config = require('../shared-config');
 
 
 const server = new Hapi.Server();
@@ -63,13 +64,19 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Set up the application routes
+// Set up the application
 server.register([
   Blipp,
   {
-    register: SimplistStorage,
+    register: SimplistDatabase,
     options: {
-      dbFile: 'db.json',
+      url: process.env.DATABASE,
+      decorate: true,
+    },
+  },
+  {
+    register: SimplistService,
+    options: {
       publish: (listID, payload) => {
         server.publish(`/s/lists/${listID}`, payload);
       },

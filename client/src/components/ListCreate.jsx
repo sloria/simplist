@@ -11,7 +11,7 @@ export default class ListCreate extends React.Component {
     const router = this.props.router;
     Client.createList({ title: 'Untitled List' })
       .then((json) => {
-        router.replace(`/lists/${json.id}`);
+        router.replace(`/lists/${json._id}`);
       });
   }
   render() {

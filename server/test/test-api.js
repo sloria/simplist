@@ -6,22 +6,28 @@ const makeServer = require('./make-server');
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
 const it = lab.it;
-const before = lab.before;
 const beforeEach = lab.beforeEach;
+const afterEach = lab.afterEach;
 const expect = Code.expect;
 
 
 describe('API', () => {
   let server;
+  let service;
+  let db;
 
-  before((done) => {
-    server = makeServer();
-    done();
+  beforeEach((done) => {
+    server = makeServer(() => {
+      db = server.mongo.db;
+      service = server.simplist.service;
+      // Clear database after each test
+      service.clearAll();
+      done();
+    });
   });
 
-  // Clear db after each test
-  beforeEach((done) => {
-    server.getStorage().clearAll();
+  afterEach((done) => {
+    server.simplist.service.clearAll();
     done();
   });
 
@@ -34,6 +40,29 @@ describe('API', () => {
     });
   });
 
+  describe('get list endpoint', () => {
+    it('should retrieve a list', (done) => {
+      const storage = server.simplist.service;
+      storage.createList().then((newList) => {
+        server.inject(`/api/lists/${newList._id}`, (resp) => {
+          expect(resp.statusCode).to.equal(200);
+          const body = JSON.parse(resp.payload);
+          expect(body._id).to.equal(newList._id);
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should error if list not found', (done) => {
+      server.inject('/api/lists/notfound', (resp) => {
+        expect(resp.statusCode).to.equal(404);
+        const body = JSON.parse(resp.payload);
+        expect(body.message).to.equal('List with id notfound not found.');
+        done();
+      });
+    });
+  });
+
   describe('create list endpoint', () => {
     it('should create a new list', (done) => {
       const opts = {
@@ -41,10 +70,12 @@ describe('API', () => {
         url: '/api/lists/',
       };
       server.inject(opts, (resp) => {
-        expect(resp.statusCode).to.equal(200);
-        const storage = resp.request.getStorage();
-        expect(storage.getLists().value().length).to.equal(1);
-        done();
+        expect(resp.statusCode).to.equal(201);
+        const storage = resp.request.simplist.service;
+        storage.getLists().then((result) => {
+          expect(result.length).to.equal(1);
+          done();
+        });
       });
     });
 
@@ -55,12 +86,14 @@ describe('API', () => {
       };
       server.inject(opts, (resp) => {
         const body = JSON.parse(resp.payload);
-        expect(body).to.include('id');
-        const storage = resp.request.getStorage();
-        const list = storage.getList(body.id).value();
-        expect(list).to.exist();
-        expect(list.title).to.equal('');
-        done();
+        expect(body).to.include('_id');
+        const storage = resp.request.simplist.service;
+        const promise = storage.getList(body._id);
+        promise.then((list) => {
+          expect(list).to.exist();
+          expect(list.title).to.equal('');
+          done();
+        }).catch(done);
       });
     });
 
@@ -68,16 +101,149 @@ describe('API', () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
-        payload: {title: 'foo'},
+        payload: { title: 'foo' },
       };
       server.inject(opts, (resp) => {
         const body = JSON.parse(resp.payload);
         expect(body).to.include('title');
-        const storage = resp.request.getStorage();
-        const list = storage.getList(body.id).value();
-        expect(list).to.exist();
-        expect(list.title).to.equal('foo');
-        done();
+        const storage = resp.request.simplist.service;
+        const promise = storage.getList(body._id);
+        promise.then((list) => {
+          expect(list).to.exist();
+          expect(list.title).to.equal('foo');
+          done();
+        }).catch(done);
+      });
+    });
+  });
+
+  describe('create list items endpoint', () => {
+    it('should create a new item on POST', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'POST',
+          url: `/api/lists/${newList._id}/items/`,
+          payload: {
+            content: 'Lorem ipsum',
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(201);
+          db.collection('items').find().toArray((err, result) => {
+            expect(result.length).to.equal(1);
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
+    it('should modify the requested list', (done) => {
+      service.createList().then((newList) => {
+        expect(newList.items.length).to.equal(0);  // sanity check
+        const options = {
+          method: 'POST',
+          url: `/api/lists/${newList._id}/items/`,
+          payload: {
+            content: 'Lorem ipsum',
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(201);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.items.length).to.equal(1);
+            expect(result.items[0]).to.be.a.string();
+            done();
+          });
+        });
+      }).catch(done);
+    });
+  });
+
+  describe('list update endpoint', () => {
+    it('should update title', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            title: 'Foo bar baz',
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(200);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.title).to.equal('Foo bar baz');
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('delete item endpoint', () => {
+    it('should remove item from a list', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0];
+          const options = {
+            method: 'DELETE',
+            url: `/api/lists/${list._id}/items/${itemID}`,
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+              expect(result.items.length).to.equal(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+
+  describe('edit item endpoint', () => {
+    it('should edit an item', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0];
+          const options = {
+            method: 'PATCH',
+            url: `/api/lists/${list._id}/items/${itemID}`,
+            payload: {
+              content: 'Quux',
+              checked: true,
+            },
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('items').findOne({ _id: itemID }, (err, result) => {
+              expect(result.content).to.equal('Quux');
+              expect(result.checked).to.be.true();
+              done();
+            })
+          });
+        });
+      });
+    });
+  });
+
+  describe('toggle item endpoint', () => {
+    it('should toggle checked state', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0];
+          const options = {
+            method: 'POST',
+            url: `/api/lists/${list._id}/items/${itemID}/toggle`,
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('items').findOne({ _id: itemID }, (err, result) => {
+              expect(result.checked).to.be.true();
+              done();
+            });
+          });
+        });
       });
     });
   });

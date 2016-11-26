@@ -1,0 +1,7 @@
+
+/* Customize container */
+@media (min-width: 938px) {
+  .App .container {
+    max-width: 900px;
+  }
+}

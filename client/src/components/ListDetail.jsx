@@ -1,25 +1,50 @@
 import React from 'react';
 import Nes from 'nes/client';
-import { FormGroup, FormControl } from 'react-bootstrap';
+import { FormGroup, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { RIEInput } from 'riek';
+import { Link } from 'react-router';
 
 import Client from '../Client';
 import ItemList from './ItemList';
 import ErrorMessage from './ErrorMessage';
+import Header from './Header';
 
 import { updateInArray } from '../utils';
 import config from '../../../shared-config';
+import './ListDetail.css';
 
 const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
 const client = new Nes.Client(websocketURI);
 
 function ListDetail(props) {
   const items = props.items;
+
+  const navLinks = [
+    <Link to="/create">New list</Link>,
+  ];
+  const editableTitle = (
+    <h4 className="text-muted">
+      <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
+    </h4>
+  );
+  let titleContent;
+  if (props.title === 'Untitled List') {
+    const titleTooltip = (
+      <Tooltip id="tooltip">Click to edit</Tooltip>
+    );
+    titleContent = (
+      <OverlayTrigger delayShow={800} placement="left" overlay={titleTooltip}>
+        {editableTitle}
+      </OverlayTrigger>
+    );
+  } else {
+    titleContent = editableTitle;
+  }
   return (
-    <div>
-      <h4>
-        <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
-      </h4>
+    <div className="ListDetail">
+      <Header navLinks={navLinks}>
+        {titleContent}
+      </Header>
       <form onSubmit={props.onSubmit}>
         <FormGroup controlId="formBasicText">
           <FormControl
@@ -29,10 +54,7 @@ function ListDetail(props) {
             onChange={props.onChange}
             autoFocus
           />
-          <FormControl.Feedback />
         </FormGroup>
-
-        {/* <pre> {JSON.stringify(props, null, 2)}</pre> */}
         <ItemList
           onMenuItemClick={props.onMenuItemClick}
           onItemChecked={props.onItemChecked}
@@ -155,6 +177,7 @@ export default class ListDetailContainer extends React.Component {
       return <ErrorMessage error={this.state.error} />;
     }
     return (
+
       <ListDetail
         onTitleChanged={this.handleTitleChanged}
         onItemChecked={this.handleItemChecked}

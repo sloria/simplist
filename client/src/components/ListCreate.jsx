@@ -1,9 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router';
 
+import Header from './Header';
 import Client from '../Client';
 
-
 export default class ListCreate extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loaderVisible: false,
+    };
+  }
   /**
    * Upon mounting, create a new list, then redirect to the list detail
    */
@@ -13,10 +20,29 @@ export default class ListCreate extends React.Component {
       .then((json) => {
         router.replace(`/lists/${json._id}`);
       });
+    // Only show loading indicator for slow (> 500ms) responses
+    setTimeout(() => {
+      this.setState({ loaderVisible: true });
+    }, 2000);
   }
   render() {
+    const navLinks = [
+      <Link to="/create">New list</Link>,
+    ];
     return (
-      <h1>Creating new list...</h1>
+      <div className="ListCreate">
+        <Header navLinks={navLinks}>
+          <h4 className="ListCreate-title text-muted">
+            Untitled List
+          </h4>
+        </Header>
+        <h4
+          className="ListCreate-loader text-muted"
+          style={{ display: this.state.loaderVisible ? 'block' : 'none' }}
+        >
+          Creating new list...
+        </h4>
+      </div>
     );
   }
 }

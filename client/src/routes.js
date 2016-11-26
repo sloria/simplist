@@ -1,6 +1,6 @@
 // src/routes.js
 import React from 'react';
-import { Router, IndexRoute, Route } from 'react-router';
+import { Router, Route } from 'react-router';
 
 import App from './components/App';
 import Index from './components/Index';
@@ -10,8 +10,9 @@ import NotFound from './components/NotFound';
 
 const Routes = props => (
   <Router {...props}>
+    <Route path="/" component={Index} />
+
     <Route path="/" component={App} >
-      <IndexRoute component={Index} />
       <Route path="/lists/:listID" component={ListDetail} />
       <Route path="/create" component={ListCreate} />
     </Route>

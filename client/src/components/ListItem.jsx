@@ -2,10 +2,9 @@ import React from 'react';
 import { FormGroup, FormControl, Checkbox } from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import FAIcon from './FAIcon';
-// import ReactMarkdown from 'react-markdown';
 
 import './ListItem.css';
-import './react-contextmenu.css';
+import './ContextMenu.css';
 
 function FieldGroup({ id, ...props }) {
   return (
@@ -97,10 +96,8 @@ export default class ListItem extends React.Component {
           checked={this.props.checked || false}
         >
           {content}
-          {/* <ReactMarkdown containerTagName="span" source={this.props.content} /> */}
         </Checkbox>
         {menu}
-        {/* <pre>{JSON.stringify(this.state)}</pre> */}
       </li>
     );
   }

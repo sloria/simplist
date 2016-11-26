@@ -94,7 +94,7 @@ export default class ListItem extends React.Component {
       <li className="ListItem">
         <Checkbox
           onChange={this.handleItemChecked}
-          checked={this.props.checked}
+          checked={this.props.checked || false}
         >
           {content}
           {/* <ReactMarkdown containerTagName="span" source={this.props.content} /> */}

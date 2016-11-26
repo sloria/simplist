@@ -70,7 +70,7 @@ server.register([
   {
     register: SimplistDatabase,
     options: {
-      url: process.env.DATABASE,
+      url: process.env.MONGODB_URI,
       decorate: true,
     },
   },

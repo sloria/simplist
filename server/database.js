@@ -2,7 +2,7 @@
  * Database plugin that connects to MongoDB, creates necessary collections,
  * and creates indices
  */
-const Mongo  = require('hapi-mongodb');
+const Mongo = require('hapi-mongodb');
 
 exports.register = (server, opts, next) => {
   server.register({

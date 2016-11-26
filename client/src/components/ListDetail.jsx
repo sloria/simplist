@@ -17,9 +17,9 @@ function ListDetail(props) {
   const items = props.items;
   return (
     <div>
-      <h3>
+      <h4>
         <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
-      </h3>
+      </h4>
       <form onSubmit={props.onSubmit}>
         <FormGroup controlId="formBasicText">
           <FormControl
@@ -144,7 +144,7 @@ export default class ListDetailContainer extends React.Component {
   }
 
   handleTitleChanged = (data) => {
-    const title = data.title || 'Untitled list';
+    const title = data.title || 'Untitled List';
     this.setState({ title });
     const listID = this.props.params.listID;
     Client.updateList({ id: listID, data: { title } });

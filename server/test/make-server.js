@@ -9,7 +9,7 @@ module.exports = function makeTestServer(done) {
     {
       register: SimplistDatabase,
       options: {
-        url: process.env.TEST_DATABASE,
+        url: process.env.TEST_MONGODB_URI,
       },
     },
     {

@@ -34,7 +34,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },
@@ -66,7 +66,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },
@@ -91,7 +91,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },
@@ -116,7 +116,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },
@@ -134,7 +134,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },
@@ -160,7 +160,7 @@ function registerAPIRoutes(server, next) {
           if (err instanceof RecordNotFoundError) {
             reply(Boom.notFound(`List with id ${listID} not found.`));
           } else {
-            reply(Boom.wrap(err, 'Unexpected error occurred.'));
+            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
           }
         });
     },

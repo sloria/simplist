@@ -21,13 +21,13 @@ describe('API', () => {
       db = server.mongo.db;
       service = server.simplist.service;
       // Clear database after each test
-      service.clearAll();
+      service._clearAll();
       done();
     });
   });
 
   afterEach((done) => {
-    server.simplist.service.clearAll();
+    service._clearAll();
     done();
   });
 
@@ -184,7 +184,7 @@ describe('API', () => {
     it('should remove item from a list', (done) => {
       service.createList().then((list) => {
         service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0];
+          const itemID = updatedList.items[0]._id;
           const options = {
             method: 'DELETE',
             url: `/api/lists/${list._id}/items/${itemID}`,
@@ -205,7 +205,7 @@ describe('API', () => {
     it('should edit an item', (done) => {
       service.createList().then((list) => {
         service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0];
+          const itemID = updatedList.items[0]._id;
           const options = {
             method: 'PATCH',
             url: `/api/lists/${list._id}/items/${itemID}`,
@@ -220,7 +220,7 @@ describe('API', () => {
               expect(result.content).to.equal('Quux');
               expect(result.checked).to.be.true();
               done();
-            })
+            });
           });
         });
       });
@@ -231,7 +231,7 @@ describe('API', () => {
     it('should toggle checked state', (done) => {
       service.createList().then((list) => {
         service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0];
+          const itemID = updatedList.items[0]._id;
           const options = {
             method: 'POST',
             url: `/api/lists/${list._id}/items/${itemID}/toggle`,

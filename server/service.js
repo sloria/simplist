@@ -37,6 +37,26 @@ class SimplistStorage {
       });
     });
   }
+  /**
+   * Replace list's 'items' field (list of _ids) with the fully materialized documents.
+   */
+  _replaceItems(list) {
+    return new Promise((resolve, reject) => {
+      const result = Object.assign({}, list);
+      if (!list.items) {
+        resolve(result);
+      }
+      this.db.collection('items').find({ _id: { $in: list.items } }).toArray((err2, items) => {
+        if (err2) { reject(err2); }
+        // Sort items by their order in list.items
+        const sortedItems = _.sortBy(items, (item) => {
+          return list.items.indexOf(item._id);
+        });
+        result.items = sortedItems;
+        resolve(result);
+      });
+    });
+  }
   getList(_id) {
     return new Promise((resolve, reject) => {
       this.db.collection('lists').findOne({ _id }, (err, result) => {
@@ -46,20 +66,16 @@ class SimplistStorage {
         if (!result) {
           reject(new RecordNotFoundError(`List with _id ${_id} not found.`));
         }
-        resolve(result);
+        this._replaceItems(result).then(resolve).catch(reject);
       });
     });
   }
-  clearAll() {
+  _clearAll() {
     this.db.dropDatabase();
   }
   updateList(_id, data) {
     const validFields = ['title'];
     const validData = _.pick(data, validFields);
-    // const list = this.getList(id);
-    // const updatedList = list.assign(data);
-    // this.publish(id, updatedList.value());
-    // return updatedList;
     return new Promise((resolve, reject) => {
       this.db.collection('lists').updateOne({ _id }, validData, (err, result) => {
         if (err) { reject(err); }
@@ -68,8 +84,10 @@ class SimplistStorage {
         }
         this.db.collection('lists').findOne({ _id }, (err2, updatedList) => {
           if (err2) { reject(err2); }
-          this.publish(_id, updatedList);
-          resolve(updatedList);
+          this._replaceItems(updatedList).then((finalList) => {
+            this.publish(_id, finalList);
+            resolve(finalList);
+          }).catch(reject);
         });
       });
     });
@@ -95,10 +113,13 @@ class SimplistStorage {
           // Append new item's _id to list's items field
           this.db.collection('lists').findOneAndUpdate({ _id }, { $push: { items: newItem._id } }, {
             returnOriginal: false,  // return the updated record
-          }, (err3, updatedList) => {
+          }, (err3, listResult) => {
             if (err3) { reject(err3); }
-            this.publish(_id, result);
-            resolve(updatedList.value);
+            const updatedList = listResult.value;
+            this._replaceItems(updatedList).then((finalList) => {
+              this.publish(_id, finalList);
+              resolve(finalList);
+            }).catch(reject);
           });
         });
       });
@@ -113,14 +134,6 @@ class SimplistStorage {
     });
   }
   editItem({ listID, itemID, data }) {
-    // const list = this.getList(listID);
-    // const items = list.value().items;
-    // const newItems = utils.updateInArray(items, item => item.id === itemID, () => {
-    //   return data;
-    // });
-    // const updatedList = list.assign({ items: newItems });
-    // this.publish(listID, updatedList.value());
-    // return updatedList;
     const validFields = ['content', 'checked'];
     const validData = _.pick(data, validFields);
     return new Promise((resolve, reject) => {
@@ -131,8 +144,10 @@ class SimplistStorage {
         }
         this.db.collection('lists').findOne({ _id: listID }, (err2, updatedList) => {
           if (err2) { reject(err2); }
-          this.publish(listID, updatedList);
-          resolve(updatedList);
+          this._replaceItems(updatedList).then((finalList) => {
+            this.publish(listID, finalList);
+            resolve(finalList);
+          }).catch(reject);
         });
       });
     });
@@ -144,10 +159,14 @@ class SimplistStorage {
         if (!result.matchedCount) {
           reject(new RecordNotFoundError(`List with _id ${listID} not found.`));
         }
-        this.db.collection('lists').findOne({ _id: listID }, (err2, updatedList) => {
-          if (err2) { reject(err2); }
-          this.publish(listID, updatedList);
-          resolve(updatedList);
+        this.db.collection('items').updateOne({ _id: itemID }, { $set: { isDeleted: true } }, () => {
+          this.db.collection('lists').findOne({ _id: listID }, (err2, updatedList) => {
+            if (err2) { reject(err2); }
+            this._replaceItems(updatedList).then((finalList) => {
+              this.publish(listID, finalList);
+              resolve(finalList);
+            }).catch(reject);
+          });
         });
       });
     });

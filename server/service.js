@@ -1,9 +1,11 @@
-const uuid = require('uuid');
+const shortid = require('shortid');
 const _ = require('lodash');
+
+const generateID = shortid;
 
 class RecordNotFoundError extends Error {}
 
-class SimplistStorage {
+class SimplistService {
   constructor(db, options) {
     this.db = db;
     if (options.publish) {
@@ -14,7 +16,7 @@ class SimplistStorage {
   }
   createList({ title = '' } = {}) {
     const newList = {
-      _id: uuid(),
+      _id: generateID(),
       title,
       items: [],
       createdAt: new Date(),
@@ -101,7 +103,7 @@ class SimplistStorage {
         }
         // Create new item
         const newItem = {
-          _id: uuid(),
+          _id: generateID(),
           content,
           isChecked: false,
           listID: _id,
@@ -174,12 +176,12 @@ class SimplistStorage {
 }
 
 exports.RecordNotFoundError = RecordNotFoundError;
-exports.SimplistStorage = SimplistStorage;
+exports.SimplistService = SimplistService;
 
 exports.register = (server, opts, next) => {
   function initPlugin(s, n) {
     const database = s.mongo.db;
-    const service = new SimplistStorage(database, {
+    const service = new SimplistService(database, {
       publish: opts.publish,
     });
     const decorations = {

@@ -1,8 +1,9 @@
 import React from 'react';
 import { FormGroup, FormControl, Checkbox } from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
-import FAIcon from './FAIcon';
+import ReactMarkdown from 'react-markdown';
 
+import FAIcon from './FAIcon';
 import './ListItem.css';
 import './ContextMenu.css';
 
@@ -70,7 +71,7 @@ export default class ListItem extends React.Component {
     } else {
       content = (
         <ContextMenuTrigger id={menuID}>
-          {this.props.content}
+          <ReactMarkdown source={this.props.content} />
         </ContextMenuTrigger>
       );
     }

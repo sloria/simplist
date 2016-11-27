@@ -3,10 +3,8 @@
  * `request.simplist.service` and `server.simplist.service`. This contains
  * the business and data storage logic.
  */
-const shortid = require('shortid');
+const generateID = require('adjective-adjective-animal');
 const _ = require('lodash');
-
-const generateID = shortid;
 
 class RecordNotFoundError extends Error {}
 
@@ -16,19 +14,21 @@ class SimplistService {
     this.publish = publish;
   }
   createList({ title = '' } = {}) {
-    const newList = {
-      _id: generateID(),
-      title,
-      items: [],
-      createdAt: new Date(),
-      isDeleted: false,
-    };
     return new Promise((resolve, reject) => {
-      this.db.collection('lists').insertOne(newList, (err) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(newList);
+      generateID().then((_id) => {
+        const newList = {
+          _id,
+          title,
+          items: [],
+          createdAt: new Date(),
+          isDeleted: false,
+        };
+        this.db.collection('lists').insertOne(newList, (err) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(newList);
+        });
       });
     });
   }
@@ -103,27 +103,30 @@ class SimplistService {
         if (!result) {
           reject(new RecordNotFoundError(`List with _id ${_id} not found.`));
         }
-        // Create new item
-        const newItem = {
-          _id: generateID(),
-          content,
-          isChecked: false,
-          listID: _id,
-          createdAt: new Date(),
-          isDeleted: false,
-        };
-        this.db.collection('items').insertOne(newItem, (err2) => {
-          if (err2) { reject(err2); }
-          // Append new item's _id to list's items field
-          this.db.collection('lists').findOneAndUpdate({ _id }, { $push: { items: newItem._id } }, {
-            returnOriginal: false,  // return the updated record
-          }, (err3, listResult) => {
-            if (err3) { reject(err3); }
-            const updatedList = listResult.value;
-            this._replaceItems(updatedList).then((finalList) => {
-              this.publish(_id, finalList);
-              resolve(finalList);
-            }).catch(reject);
+
+        generateID().then((generatedID) => {
+          // Create new item
+          const newItem = {
+            _id: generatedID,
+            content,
+            isChecked: false,
+            listID: _id,
+            createdAt: new Date(),
+            isDeleted: false,
+          };
+          this.db.collection('items').insertOne(newItem, (err2) => {
+            if (err2) { reject(err2); }
+            // Append new item's _id to list's items field
+            this.db.collection('lists').findOneAndUpdate({ _id }, { $push: { items: newItem._id } }, {
+              returnOriginal: false,  // return the updated record
+            }, (err3, listResult) => {
+              if (err3) { reject(err3); }
+              const updatedList = listResult.value;
+              this._replaceItems(updatedList).then((finalList) => {
+                this.publish(_id, finalList);
+                resolve(finalList);
+              }).catch(reject);
+            });
           });
         });
       });

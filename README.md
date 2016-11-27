@@ -1,5 +1,7 @@
 # Simplist
 
+[![Build Status](https://travis-ci.org/sloria/simplist.svg?branch=master)](https://travis-ci.org/sloria/simplist)
+
 One-click, collaborative lists.
 
 ## A work in progress

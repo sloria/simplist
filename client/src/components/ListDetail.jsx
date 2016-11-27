@@ -88,12 +88,15 @@ function ListDetail(props) {
         {titleContent}
       </Header>
       <div className="help-block">
-        <p><strong>NOTE:</strong> This is a PUBLIC list. Any changes you make will be seen by anyone viewing this list.</p>
+        <p><strong>NOTE:</strong> This is a PUBLIC list.
+          Any changes you make will be seen by anyone viewing this list.
+        </p>
       </div>
       <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
       {items.length ? <ItemList
         onSortEnd={props.onSortEnd}
         lockAxis={'y'}
+        pressDelay={200}
         onMenuItemClick={props.onMenuItemClick}
         onItemChecked={props.onItemChecked}
         finishEditing={props.finishEditing}

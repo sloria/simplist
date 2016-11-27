@@ -3,6 +3,7 @@ import Nes from 'nes/client';
 import { FormGroup, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { RIEInput } from 'riek';
 import { Link } from 'react-router';
+import { arrayMove } from 'react-sortable-hoc';
 
 import Client from '../Client';
 import ItemList from './ItemList';
@@ -14,7 +15,7 @@ import config from '../../../shared-config';
 import './ListDetail.css';
 
 const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
-const client = new Nes.Client(websocketURI);
+const nesClient = new Nes.Client(websocketURI);
 
 function ListDetail(props) {
   const items = props.items;
@@ -55,13 +56,14 @@ function ListDetail(props) {
             autoFocus
           />
         </FormGroup>
-        <ItemList
+        {items.length ? <ItemList
+          onSortEnd={props.onSortEnd}
           onMenuItemClick={props.onMenuItemClick}
           onItemChecked={props.onItemChecked}
           finishEditing={props.finishEditing}
           cancelEditing={props.cancelEditing}
           items={items}
-        />
+        /> : ''}
       </form>
     </div>
   );
@@ -91,11 +93,11 @@ export default class ListDetailContainer extends React.Component {
         this.setState({ error });
       });
 
-    client.connect(() => {
+    nesClient.connect(() => {
       function handler(payload) {
         this.setState({ title: payload.title, items: payload.items });
       }
-      client.subscribe(`/s/lists/${listID}`, handler.bind(this), (err) => {
+      nesClient.subscribe(`/s/lists/${listID}`, handler.bind(this), (err) => {
         if (err) { throw err; }
       });
     });
@@ -172,6 +174,16 @@ export default class ListDetailContainer extends React.Component {
     Client.updateList({ id: listID, data: { title } });
   }
 
+  handleSortEnd = ({ oldIndex, newIndex }) => {
+    const reorderedItems = arrayMove(this.state.items, oldIndex, newIndex);
+    this.setState({
+      items: reorderedItems,
+    });
+    const itemIDs = reorderedItems.map(item => item._id);
+    const listID = this.props.params.listID;
+    Client.updateList({ id: listID, data: { items: itemIDs }});
+  }
+
   render() {
     if (this.state.error) {
       return <ErrorMessage error={this.state.error} />;
@@ -179,6 +191,7 @@ export default class ListDetailContainer extends React.Component {
     return (
 
       <ListDetail
+        onSortEnd={this.handleSortEnd}
         onTitleChanged={this.handleTitleChanged}
         onItemChecked={this.handleItemChecked}
         onMenuItemClick={this.handleMenuItemClick}

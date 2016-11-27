@@ -1,22 +1,26 @@
 import React, { PropTypes as t } from 'react';
+import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import ListItem from './ListItem';
 
 import './ItemList.css';
 
+const SortableListItem = SortableElement(props => <ListItem {...props} />);
 
-export default class ItemList extends React.Component {
+class ItemList extends React.Component {
   static propTypes = {
     items: t.arrayOf(t.object),
     onItemChecked: t.func.isRequired,
     onMenuItemClick: t.func.isRequired,
+    finishEditing: t.func.isRequired,
   }
   render() {
     return (
       <ul className="ItemList">
-        {this.props.items.map((item) => {
+        {this.props.items.map((item, index) => {
           return (
-            <ListItem
+            <SortableListItem
+              index={index}
               editing={item.editing || false}
               itemID={item._id}
               onItemChecked={this.props.onItemChecked}
@@ -33,3 +37,5 @@ export default class ItemList extends React.Component {
     );
   }
 }
+
+export default SortableContainer(ItemList);

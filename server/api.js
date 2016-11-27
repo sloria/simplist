@@ -100,6 +100,7 @@ function registerAPIRoutes(server, next) {
       validate: {
         payload: {
           title: Joi.string().max(200),
+          items: Joi.array().items(Joi.string()),
         },
       },
     },

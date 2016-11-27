@@ -77,7 +77,8 @@ class SimplistService {
     this.db.dropDatabase();
   }
   updateList(_id, data) {
-    const validFields = ['title'];
+    // TODO: Validate item IDs
+    const validFields = ['title', 'items'];
     const validData = _.pick(data, validFields);
     return new Promise((resolve, reject) => {
       this.db.collection('lists').updateOne({ _id }, { $set: validData }, (err, result) => {

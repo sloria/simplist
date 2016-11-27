@@ -211,6 +211,34 @@ describe('API', () => {
         });
       });
     });
+
+    it('should allow reordering of items', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'foo').then(() => {
+          service.addItemToList(list._id, 'bar').then((updatedList) => {
+            expect(updatedList.items.length).to.equal(2);  // sanity check
+
+            const itemIDs = updatedList.items.map(item => item._id);
+            const reorderedIDs = _.reverse(itemIDs);
+
+            const options = {
+              method: 'PATCH',
+              url: `/api/lists/${list._id}`,
+              payload: {
+                items: reorderedIDs,
+              },
+            };
+            server.inject(options, (resp) => {
+              expect(resp.statusCode).to.equal(200);
+              db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+                expect(result.items).to.equal(reorderedIDs);
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('delete item endpoint', () => {

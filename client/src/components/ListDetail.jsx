@@ -1,6 +1,12 @@
 import React from 'react';
 import Nes from 'nes/client';
-import { FormGroup, FormControl, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import {
+  FormGroup,
+  FormControl,
+  OverlayTrigger,
+  Tooltip,
+  Popover,
+} from 'react-bootstrap';
 import { RIEInput } from 'riek';
 import { Link } from 'react-router';
 import { arrayMove } from 'react-sortable-hoc';
@@ -9,6 +15,7 @@ import Client from '../Client';
 import ItemList from './ItemList';
 import ErrorMessage from './ErrorMessage';
 import Header from './Header';
+import CopyInput from './CopyInput';
 
 import { updateInArray } from '../utils';
 import config from '../../../shared-config';
@@ -17,11 +24,45 @@ import './ListDetail.css';
 const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
 const nesClient = new Nes.Client(websocketURI);
 
+function AddItemInput({ onSubmit, onChange, value }) {
+  return (
+    <form className="ListDetail-addform" onSubmit={onSubmit}>
+      <FormGroup controlId="formBasicText">
+        <FormControl
+          type="text"
+          value={value}
+          placeholder="Add an item..."
+          onChange={onChange}
+          autoFocus
+        />
+      </FormGroup>
+    </form>
+  );
+}
+
+function getListURL(listID) {
+  const domain = window.location.hostname + (window.location.port ? `:${window.location.port}` : '');
+  return `http://${domain}/lists/${listID}`;
+}
+
 function ListDetail(props) {
-  const items = props.items;
+  const { items, listID } = props;
+  const linkURL = getListURL(listID);
+  const sharePopover = (
+    <Popover id="sharePopover" title="List URL">
+      <CopyInput buttonID="shareButtonID" inputID="shareInputID" value={linkURL} />
+    </Popover>
+  );
+
+  const shareButton = (
+    <OverlayTrigger trigger="click" placement="bottom" overlay={sharePopover}>
+      <a href={undefined}>Share this list</a>
+    </OverlayTrigger>
+  );
 
   const navLinks = [
-    <Link to="/create">New list</Link>,
+    shareButton,
+    <Link className="text-success" to="/create">New list</Link>,
   ];
   const editableTitle = (
     <h4 className="ListDetail-title text-muted">
@@ -46,27 +87,16 @@ function ListDetail(props) {
       <Header navLinks={navLinks}>
         {titleContent}
       </Header>
-      <form className="ListDetail-addform" onSubmit={props.onSubmit}>
-        <FormGroup controlId="formBasicText">
-          <FormControl
-            type="text"
-            value={props.value}
-            placeholder="Add an item..."
-            onChange={props.onChange}
-            autoFocus
-          />
-        </FormGroup>
-      </form>
-        {items.length ? <ItemList
-          onSortEnd={props.onSortEnd}
-          disabled={true}
-          lockAxis={'y'}
-          onMenuItemClick={props.onMenuItemClick}
-          onItemChecked={props.onItemChecked}
-          finishEditing={props.finishEditing}
-          cancelEditing={props.cancelEditing}
-          items={items}
-        /> : ''}
+      <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
+      {items.length ? <ItemList
+        onSortEnd={props.onSortEnd}
+        lockAxis={'y'}
+        onMenuItemClick={props.onMenuItemClick}
+        onItemChecked={props.onItemChecked}
+        finishEditing={props.finishEditing}
+        cancelEditing={props.cancelEditing}
+        items={items}
+      /> : ''}
     </div>
   );
 }
@@ -180,7 +210,7 @@ export default class ListDetailContainer extends React.Component {
     });
     const itemIDs = reorderedItems.map(item => item._id);
     const listID = this.props.params.listID;
-    Client.updateList({ id: listID, data: { items: itemIDs }});
+    Client.updateList({ id: listID, data: { items: itemIDs } });
   }
 
   render() {

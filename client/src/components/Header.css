@@ -1,3 +1,11 @@
 .Header .header {
   padding-bottom: 5px;
 }
+
+.Header nav {
+  font-size: 13px;
+}
+
+.Header nav li {
+  cursor: pointer;
+}

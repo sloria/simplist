@@ -1,0 +1,4 @@
+/* Don't grey out readonly input */
+.CopyInput .form-control[readonly] {
+  background-color: inherit;
+}

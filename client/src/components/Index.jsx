@@ -3,8 +3,9 @@ import { Link } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Button, Jumbotron } from 'react-bootstrap';
 
-import GitHubRibbon from './GitHubRibbon';
 import Header from './Header';
+import Footer from './Footer';
+import './Index.css';
 
 class Index extends Component {
   render() {
@@ -15,11 +16,13 @@ class Index extends Component {
       <div className="Index">
         <div className="container">
           <Header navLinks={navLinks}>
-            <h3 className="text-muted">Simplist</h3>
+            <h3>Simplist</h3>
           </Header>
           <Jumbotron>
             <h1>Simplist</h1>
-            <p className="lead">Real-time collaborative lists in one click</p>
+            <small>
+              <p><span className="text-muted">Real-time collaborative lists in</span> one click</p>
+            </small>
             <LinkContainer to="/create">
               <Button bsSize="large" bsStyle="success">
                 Create new list
@@ -27,7 +30,7 @@ class Index extends Component {
             </LinkContainer>
           </Jumbotron>
         </div>
-        <GitHubRibbon repo="sloria/simplist" />
+        <Footer />
       </div>
     );
   }

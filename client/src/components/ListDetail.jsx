@@ -65,7 +65,7 @@ function ListDetail(props) {
     <Link className="text-success" to="/create">New list</Link>,
   ];
   const editableTitle = (
-    <h4 className="ListDetail-title text-muted">
+    <h4 className="ListDetail-title">
       <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
     </h4>
   );
@@ -87,6 +87,9 @@ function ListDetail(props) {
       <Header navLinks={navLinks}>
         {titleContent}
       </Header>
+      <div className="help-block">
+        <p><strong>NOTE:</strong> This is a PUBLIC list. Any changes you make will be seen by anyone viewing this list.</p>
+      </div>
       <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
       {items.length ? <ItemList
         onSortEnd={props.onSortEnd}

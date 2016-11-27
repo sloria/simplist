@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Cousine|Lato:300');
+@import url('https://fonts.googleapis.com/css?family=Cousine|Lato:400,700');
 
 /* Adapted from https://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css */
 
@@ -6,7 +6,7 @@
 body {
   padding-top: 20px;
   padding-bottom: 20px;
-  font-family: 'Cousine', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Cousine', monospace;
   font-size: 16px;
 }
 

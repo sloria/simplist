@@ -1,5 +1,10 @@
-.ListDetail-title {
-  font-family: 'Cousine', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+.ListDetail .ListDetail-title {
+  font-family: 'Cousine', monospace;
+}
+
+.ListDetail .help-block {
+  font-size: 16px;
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 

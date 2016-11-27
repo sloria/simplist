@@ -14,6 +14,16 @@ class ItemList extends React.Component {
     onMenuItemClick: t.func.isRequired,
     finishEditing: t.func.isRequired,
   }
+  state = {
+    sortingDisabled: false,
+  }
+  // Disable sorting when an item is right-clicked
+  handleMenuShow = () => {
+    this.setState({ sortingDisabled: true });
+  }
+  handleMenuHide = () => {
+    this.setState({ sortingDisabled: false });
+  }
   render() {
     return (
       <ul className="ItemList">
@@ -23,6 +33,9 @@ class ItemList extends React.Component {
               index={index}
               editing={item.editing || false}
               itemID={item._id}
+              onMenuShow={this.handleMenuShow}
+              onMenuHide={this.handleMenuHide}
+              disabled={this.state.sortingDisabled}
               onItemChecked={this.props.onItemChecked}
               finishEditing={this.props.finishEditing}
               cancelEditing={this.props.cancelEditing}

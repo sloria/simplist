@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes as t } from 'react';
 import { FormGroup, FormControl, Checkbox } from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import ReactMarkdown from 'react-markdown';
@@ -16,12 +16,23 @@ function FieldGroup({ id, ...props }) {
 }
 
 export default class ListItem extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      displayControls: false,
-      value: props.content,
-    };
+  static defaultProps = {
+    onShowMenu: () => null,
+    onItemChecked: () => null,
+    onMenuItemClick: () => null,
+    onMenuShow: () => null,
+    onMenuHide: () => null,
+  }
+  static propTypes = {
+    itemID: t.string.isRequired,
+    content: t.string.isRequired,
+    onItemChecked: t.func,
+    onMenuItemClick: t.func,
+    onMenuShow: t.func,
+    onMenuHide: t.func,
+  }
+  state = {
+    value: this.props.content,
   }
   // FIXME: Make this work
   componentDidUpdate(prevProps) {
@@ -77,14 +88,14 @@ export default class ListItem extends React.Component {
     }
 
     const menu = (
-      <ContextMenu id={menuID}>
+      <ContextMenu onHide={this.props.onMenuHide} onShow={this.props.onMenuShow} id={menuID}>
         <MenuItem onClick={this.handleEdit}>
-          <FAIcon type="edit" className="text-muted" />&nbsp;
+          <FAIcon type="edit" />&nbsp;
           Edit
         </MenuItem>
 
         <MenuItem onClick={this.handleDelete}>
-          <FAIcon type="trash" className="text-muted" />&nbsp;
+          <FAIcon type="trash" className="text-danger" />&nbsp;
           Delete
         </MenuItem>
       </ContextMenu>

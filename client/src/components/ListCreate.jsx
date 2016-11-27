@@ -5,11 +5,8 @@ import Header from './Header';
 import Client from '../Client';
 
 export default class ListCreate extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loaderVisible: false,
-    };
+  state = {
+    loaderVisible: false,
   }
   /**
    * Upon mounting, create a new list, then redirect to the list detail

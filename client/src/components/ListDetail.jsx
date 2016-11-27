@@ -59,6 +59,8 @@ function ListDetail(props) {
       </form>
         {items.length ? <ItemList
           onSortEnd={props.onSortEnd}
+          disabled={true}
+          lockAxis={'y'}
           onMenuItemClick={props.onMenuItemClick}
           onItemChecked={props.onItemChecked}
           finishEditing={props.finishEditing}
@@ -71,14 +73,11 @@ function ListDetail(props) {
 
 
 export default class ListDetailContainer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: '',
-      value: '',
-      items: [],
-      error: null,
-    };
+  state = {
+    title: '',
+    value: '',
+    items: [],
+    error: null,
   }
   componentDidMount() {
     const listID = this.props.params.listID;

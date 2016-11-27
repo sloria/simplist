@@ -1,9 +1,22 @@
-/* From https://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css */
+@import url('https://fonts.googleapis.com/css?family=Cousine|Lato:300');
+
+/* Adapted from https://getbootstrap.com/examples/jumbotron-narrow/jumbotron-narrow.css */
 
 /* Space out content a bit */
 body {
   padding-top: 20px;
   padding-bottom: 20px;
+  font-family: 'Cousine', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+}
+
+.btn {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */

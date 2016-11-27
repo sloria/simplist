@@ -24,7 +24,7 @@ function ListDetail(props) {
     <Link to="/create">New list</Link>,
   ];
   const editableTitle = (
-    <h4 className="text-muted">
+    <h4 className="ListDetail-title text-muted">
       <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
     </h4>
   );
@@ -46,7 +46,7 @@ function ListDetail(props) {
       <Header navLinks={navLinks}>
         {titleContent}
       </Header>
-      <form onSubmit={props.onSubmit}>
+      <form className="ListDetail-addform" onSubmit={props.onSubmit}>
         <FormGroup controlId="formBasicText">
           <FormControl
             type="text"
@@ -56,6 +56,7 @@ function ListDetail(props) {
             autoFocus
           />
         </FormGroup>
+      </form>
         {items.length ? <ItemList
           onSortEnd={props.onSortEnd}
           onMenuItemClick={props.onMenuItemClick}
@@ -64,7 +65,6 @@ function ListDetail(props) {
           cancelEditing={props.cancelEditing}
           items={items}
         /> : ''}
-      </form>
     </div>
   );
 }

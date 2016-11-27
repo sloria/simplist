@@ -1,4 +1,5 @@
 .react-contextmenu {
+    z-index: 9999;
     min-width: 160px;
     padding: 3px 0;
     margin: 2px 0 0;

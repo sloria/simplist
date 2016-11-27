@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Button, Jumbotron } from 'react-bootstrap';
 
+import GitHubRibbon from './GitHubRibbon';
 import Header from './Header';
 
 class Index extends Component {
@@ -26,6 +27,7 @@ class Index extends Component {
             </LinkContainer>
           </Jumbotron>
         </div>
+        <GitHubRibbon repo="sloria/simplist" />
       </div>
     );
   }

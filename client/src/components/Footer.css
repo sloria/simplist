@@ -5,9 +5,7 @@ body {
 .footer {
   text-align: center;
   font-size: 12px;
-  position: absolute;
-  bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer here */
-  height: 60px;
+  /* height: 60px; */
 }

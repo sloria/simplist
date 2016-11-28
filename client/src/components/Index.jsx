@@ -7,6 +7,8 @@ import Header from './Header';
 import Footer from './Footer';
 import './Index.css';
 
+const FOOTER_HEIGHT = 100;
+
 class Index extends Component {
   render() {
     const navLinks = [
@@ -14,7 +16,7 @@ class Index extends Component {
     ];
     return (
       <div className="Index">
-        <div className="container">
+        <div style={{ minHeight: window.innerHeight - FOOTER_HEIGHT }} className="container">
           <Header navLinks={navLinks}>
             <h3>Simplist</h3>
           </Header>

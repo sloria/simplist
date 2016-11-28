@@ -17,6 +17,7 @@ function FieldGroup({ id, ...props }) {
 
 export default class ListItem extends React.Component {
   static defaultProps = {
+    editing: false,
     onShowMenu: () => null,
     onItemChecked: () => null,
     onMenuItemClick: () => null,
@@ -82,7 +83,7 @@ export default class ListItem extends React.Component {
     } else {
       content = (
         <ContextMenuTrigger id={menuID}>
-          <ReactMarkdown source={this.props.content} />
+          <ReactMarkdown escapeHtml source={this.props.content} />
         </ContextMenuTrigger>
       );
     }

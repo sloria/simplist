@@ -3,6 +3,7 @@ const Lab = require('lab');
 const _ = require('lodash');
 
 const makeServer = require('./make-server');
+const SimplistService = require('../service');
 
 const lab = exports.lab = Lab.script();
 const describe = lab.describe;
@@ -10,6 +11,7 @@ const it = lab.it;
 const beforeEach = lab.beforeEach;
 const afterEach = lab.afterEach;
 const expect = Code.expect;
+const DEFAULT_DESCRIPTION = SimplistService.DEFAULT_DESCRIPTION;
 
 
 describe('API', () => {
@@ -43,8 +45,7 @@ describe('API', () => {
 
   describe('get list endpoint', () => {
     it('should retrieve a list', (done) => {
-      const storage = server.simplist.service;
-      storage.createList().then((newList) => {
+      service.createList().then((newList) => {
         server.inject(`/api/lists/${newList._id}`, (resp) => {
           expect(resp.statusCode).to.equal(200);
           const body = JSON.parse(resp.payload);
@@ -72,9 +73,23 @@ describe('API', () => {
       };
       server.inject(opts, (resp) => {
         expect(resp.statusCode).to.equal(201);
-        const storage = resp.request.simplist.service;
-        storage.getLists().then((result) => {
+        service.getLists().then((result) => {
           expect(result.length).to.equal(1);
+          done();
+        });
+      });
+    });
+
+    it('should create a new list with default description', (done) => {
+      const opts = {
+        method: 'POST',
+        url: '/api/lists/',
+      };
+      server.inject(opts, (resp) => {
+        expect(resp.statusCode).to.equal(201);
+        db.collection('lists').find().limit(1).next((err, result) => {
+          expect(result.description).to.be.a.string();
+          expect(result.description).to.equal(DEFAULT_DESCRIPTION);
           done();
         });
       });
@@ -88,8 +103,7 @@ describe('API', () => {
       server.inject(opts, (resp) => {
         const body = JSON.parse(resp.payload);
         expect(body).to.include('_id');
-        const storage = resp.request.simplist.service;
-        const promise = storage.getList(body._id);
+        const promise = service.getList(body._id);
         promise.then((list) => {
           expect(list).to.exist();
           expect(list.title).to.equal('');
@@ -107,8 +121,7 @@ describe('API', () => {
       server.inject(opts, (resp) => {
         const body = JSON.parse(resp.payload);
         expect(body).to.include('title');
-        const storage = resp.request.simplist.service;
-        const promise = storage.getList(body._id);
+        const promise = service.getList(body._id);
         promise.then((list) => {
           expect(list).to.exist();
           expect(list.title).to.equal('foo');
@@ -176,7 +189,7 @@ describe('API', () => {
     });
   });
 
-  describe('list update endpoint', () => {
+  describe('update list endpoint', () => {
     it('should update title', (done) => {
       service.createList().then((newList) => {
         const options = {
@@ -208,6 +221,64 @@ describe('API', () => {
         server.inject(options, (resp) => {
           expect(resp.statusCode).to.equal(400);
           done();
+        });
+      });
+    });
+
+    it('should update the description', (done) => {
+      const description = '*Foo* [bar](https://baz.qux)';
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            description,
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(200);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.description).to.equal(description);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should error if description too long', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            description: _.repeat('a', 1001),
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(400);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.description).to.equal(DEFAULT_DESCRIPTION);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should allow blank descriptions', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            description: '',
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(200);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.description).to.equal('');
+            done();
+          });
         });
       });
     });

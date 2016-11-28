@@ -8,6 +8,12 @@ const _ = require('lodash');
 
 class RecordNotFoundError extends Error {}
 
+
+const DEFAULT_DESCRIPTION = exports.DEFAULT_DESCRIPTION = (
+  '**NOTE**: This is a PUBLIC list. Any changes you make will be seen by ' +
+  'anyone viewing this list.\n\n-----\n'
+);
+
 class SimplistService {
   constructor(db, { publish = function noop() {} } = {}) {
     this.db = db;
@@ -22,6 +28,7 @@ class SimplistService {
           items: [],
           createdAt: new Date(),
           isDeleted: false,
+          description: DEFAULT_DESCRIPTION,
         };
         this.db.collection('lists').insertOne(newList, (err) => {
           if (err) {
@@ -78,7 +85,7 @@ class SimplistService {
   }
   updateList(_id, data) {
     // TODO: Validate item IDs
-    const validFields = ['title', 'items'];
+    const validFields = ['title', 'items', 'description'];
     const validData = _.pick(data, validFields);
     return new Promise((resolve, reject) => {
       this.db.collection('lists').updateOne({ _id }, { $set: validData }, (err, result) => {

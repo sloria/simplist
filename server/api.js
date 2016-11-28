@@ -101,6 +101,7 @@ function registerAPIRoutes(server, next) {
         payload: {
           title: Joi.string().max(200),
           items: Joi.array().items(Joi.string()),
+          description: Joi.string().max(1000).allow(''),
         },
       },
     },

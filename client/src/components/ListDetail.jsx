@@ -13,6 +13,7 @@ import { arrayMove } from 'react-sortable-hoc';
 
 import Client from '../Client';
 import ItemList from './ItemList';
+import EditableMarkdown from './EditableMarkdown';
 import ErrorMessage from './ErrorMessage';
 import Header from './Header';
 import CopyInput from './CopyInput';
@@ -47,6 +48,7 @@ function getListURL(listID) {
 
 function ListDetail(props) {
   const { items, listID } = props;
+  const description = props.description;
   const linkURL = getListURL(listID);
   const sharePopover = (
     <Popover id="sharePopover" title="List URL">
@@ -87,11 +89,14 @@ function ListDetail(props) {
       <Header navLinks={navLinks}>
         {titleContent}
       </Header>
-      <div className="help-block">
-        <p><strong>NOTE:</strong> This is a PUBLIC list.
-          Any changes you make will be seen by anyone viewing this list.
-        </p>
-      </div>
+      {description != null ?
+        <div className="ListDetail-description">
+          <EditableMarkdown
+            value={description}
+            emptyContent='*Click here to edit description*'
+            finishEditing={props.onEditDescription} />
+        </div> : ''
+      }
       <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
       {items.length ? <ItemList
         onSortEnd={props.onSortEnd}
@@ -114,14 +119,16 @@ export default class ListDetailContainer extends React.Component {
     value: '',
     items: [],
     error: null,
+    description: '',
   }
   componentDidMount() {
-    const listID = this.props.params.listID;
+    const listID = this.listID = this.props.params.listID;
     Client.getList(listID)
       .then((json) => {
         this.setState({
           title: json.title,
           items: json.items || [],
+          description: json.description,
         });
       })
       .catch((error) => {
@@ -130,7 +137,7 @@ export default class ListDetailContainer extends React.Component {
 
     nesClient.connect(() => {
       function handler(payload) {
-        this.setState({ title: payload.title, items: payload.items });
+        this.setState(payload);
       }
       nesClient.subscribe(`/s/lists/${listID}`, handler.bind(this), (err) => {
         if (err) { throw err; }
@@ -219,12 +226,18 @@ export default class ListDetailContainer extends React.Component {
     Client.updateList({ id: listID, data: { items: itemIDs } });
   }
 
+  handleEditDescription = (newContent) => {
+    this.setState({
+      description: newContent,
+    });
+    Client.updateList({ id: this.listID, data: { description: newContent } });
+  }
+
   render() {
     if (this.state.error) {
       return <ErrorMessage error={this.state.error} />;
     }
     return (
-
       <ListDetail
         onSortEnd={this.handleSortEnd}
         onTitleChanged={this.handleTitleChanged}
@@ -235,9 +248,11 @@ export default class ListDetailContainer extends React.Component {
         title={this.state.title}
         items={this.state.items}
         value={this.state.value}
+        description={this.state.description}
         listID={this.props.params.listID}
         onChange={this.handleChange}
         onSubmit={this.handleSubmit}
+        onEditDescription={this.handleEditDescription}
       />
     );
   }

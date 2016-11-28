@@ -4,7 +4,6 @@ import {
   FormGroup,
   FormControl,
   OverlayTrigger,
-  Tooltip,
   Popover,
 } from 'react-bootstrap';
 import { RIEInput } from 'riek';
@@ -66,24 +65,16 @@ function ListDetail(props) {
     shareButton,
     <Link className="text-success" to="/create">New list</Link>,
   ];
-  const editableTitle = (
-    <h4 className="ListDetail-title">
-      <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
-    </h4>
+  const titleContent = (
+    <span>
+      <h4>
+        <span className="brand"><Link to="/">Simplist</Link>&nbsp; | &nbsp; </span>
+        <span className="ListDetail-title">
+          <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
+        </span>
+      </h4>
+    </span>
   );
-  let titleContent;
-  if (props.title === 'Untitled List') {
-    const titleTooltip = (
-      <Tooltip id="tooltip">Click to edit</Tooltip>
-    );
-    titleContent = (
-      <OverlayTrigger delayShow={800} placement="left" overlay={titleTooltip}>
-        {editableTitle}
-      </OverlayTrigger>
-    );
-  } else {
-    titleContent = editableTitle;
-  }
   return (
     <div className="ListDetail">
       <Header navLinks={navLinks}>

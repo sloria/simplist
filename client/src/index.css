@@ -10,6 +10,10 @@ body {
   font-size: 16px;
 }
 
+.brand {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .btn {
   font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

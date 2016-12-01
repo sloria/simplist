@@ -6,6 +6,11 @@
   font-size: 13px;
 }
 
-.Header nav li {
+.Header nav li a,
+.Header nav li button {
   cursor: pointer;
+}
+
+.Header-label {
+  padding-top: 8px;
 }

@@ -18,10 +18,10 @@ class Index extends Component {
       <div className="Index">
         <div style={{ minHeight: window.innerHeight - FOOTER_HEIGHT }} className="container">
           <Header navLinks={navLinks}>
-            <h3>Simplist</h3>
+            <h3 className="brand">Simplist</h3>
           </Header>
           <Jumbotron>
-            <h1>Simplist</h1>
+            <h1 className="brand">Simplist</h1>
             <small>
               <p><span className="text-muted">Real-time collaborative lists in</span> one click</p>
             </small>
@@ -30,6 +30,9 @@ class Index extends Component {
                 Create new list
               </Button>
             </LinkContainer>
+            <div className="text-muted">
+              <p><small>No signup required</small></p>
+            </div>
           </Jumbotron>
         </div>
         <Footer />

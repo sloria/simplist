@@ -5,6 +5,8 @@ import {
   FormControl,
   OverlayTrigger,
   Popover,
+  Label,
+  Tooltip,
 } from 'react-bootstrap';
 import { RIEInput } from 'riek';
 import { Link } from 'react-router';
@@ -61,14 +63,26 @@ function ListDetail(props) {
     </OverlayTrigger>
   );
 
+  const labelTooltip = (
+    <Tooltip id="publicTooltip">
+      <strong>This list is PUBLIC.</strong>&nbsp;
+      Any changes you make will be seen by anyone viewing this list.
+    </Tooltip>
+  );
+  const label = (
+    <OverlayTrigger trigger="hover" delayShow={800} placement="bottom" overlay={labelTooltip}>
+      <Label className="ListDetail-label">Public</Label>
+    </OverlayTrigger>
+  );
   const navLinks = [
+    { content: label, navProps: { className: 'Header-label' } },
     shareButton,
     <Link className="text-success" to="/create">New list</Link>,
   ];
   const titleContent = (
     <span>
       <h4>
-        <span className="brand"><Link to="/">Simplist</Link>&nbsp; | &nbsp; </span>
+        <span className="brand"><Link to="/">Simplist</Link></span>&nbsp; | &nbsp;
         <span className="ListDetail-title">
           <RIEInput value={props.title} change={props.onTitleChanged} propName="title" />
         </span>
@@ -84,8 +98,9 @@ function ListDetail(props) {
         <div className="ListDetail-description">
           <EditableMarkdown
             value={description}
-            emptyContent='*Click here to edit description*'
-            finishEditing={props.onEditDescription} />
+            emptyContent="*Click here to edit description*"
+            finishEditing={props.onEditDescription}
+          />
         </div> : ''
       }
       <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
@@ -121,6 +136,7 @@ export default class ListDetailContainer extends React.Component {
           items: json.items || [],
           description: json.description,
         });
+        document.title = `Simplist | ${json.title}`;
       })
       .catch((error) => {
         this.setState({ error });
@@ -202,9 +218,13 @@ export default class ListDetailContainer extends React.Component {
 
   handleTitleChanged = (data) => {
     const title = data.title || 'Untitled List';
+    const pageTitle = `Simplist | ${title}`;
+    document.title = pageTitle;
     this.setState({ title });
     const listID = this.props.params.listID;
-    Client.updateList({ id: listID, data: { title } });
+    Client.updateList({ id: listID, data: { title } }).then(() => {
+      document.title = pageTitle;
+    });
   }
 
   handleSortEnd = ({ oldIndex, newIndex }) => {

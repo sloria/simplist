@@ -1,3 +1,7 @@
 .Index .lead {
   opacity: 50%;
 }
+
+.Index small {
+  font-size: 60%;
+}

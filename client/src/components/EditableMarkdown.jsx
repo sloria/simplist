@@ -7,6 +7,8 @@ import {
 } from 'react-bootstrap';
 import Markdown from 'react-markdown';
 
+import './EditableMarkdown.css';
+
 export default class EditableMarkdown extends React.Component {
   static defaultProps = {
     rows: 5,
@@ -24,7 +26,7 @@ export default class EditableMarkdown extends React.Component {
     this.setState({ value: nextProps.value });
   }
   componentDidUpdate(prevProps, prevState) {
-    var inputElem = ReactDOM.findDOMNode(this.refs.input);
+    const inputElem = ReactDOM.findDOMNode(this.refs.input);
     if (this.state.editing && !prevState.editing) {
       inputElem.focus();
       // this.selectInputText(inputElem);
@@ -43,12 +45,15 @@ export default class EditableMarkdown extends React.Component {
             onChange={event => this.setState({ value: event.target.value })}
           />
         </FormGroup>
-        <Button className="pull-right" bsStyle="success" type="submit">Save</Button>
-        <Button
-          onClick={this.cancelEditing}
-          className="pull-right"
-          bsStyle="default"
-        >Cancel</Button>
+        <div className="EditableMarkdown-buttons">
+          <Button className="pull-right" bsStyle="success" type="submit">Save</Button>
+          <Button
+            style={{ marginRight: '10px' }}
+            onClick={this.cancelEditing}
+            className="pull-right"
+            bsStyle="default"
+          >Cancel</Button>
+        </div>
       </form>
     );
   }

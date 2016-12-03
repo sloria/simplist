@@ -5,3 +5,16 @@
 .Index small {
   font-size: 60%;
 }
+
+.Index-tagline-highlight {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.Index .marketing ul {
+  list-style: none;
+}
+
+.Index .marketing li {
+  padding-top: 20px;
+  font-size: 20px;
+}

@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Button, Jumbotron } from 'react-bootstrap';
+import {
+  Button,
+  Jumbotron,
+  Row,
+  Col,
+} from 'react-bootstrap';
 
 import Header from './Header';
 import Footer from './Footer';
+import Icon from './FAIcon';
 import './Index.css';
 
 const FOOTER_HEIGHT = 100;
@@ -12,7 +18,7 @@ const FOOTER_HEIGHT = 100;
 class Index extends Component {
   render() {
     const navLinks = [
-      <Link to="/create">Create list</Link>,
+      <Link className="text-success" to="/create">New list</Link>,
     ];
     return (
       <div className="Index">
@@ -23,7 +29,7 @@ class Index extends Component {
           <Jumbotron>
             <h1 className="brand">Simplist</h1>
             <small>
-              <p><span className="text-muted">Real-time collaborative lists in</span> one click</p>
+              <p><span className="text-muted">Real-time collaborative lists in</span> one click <Icon type="mouse-pointer" /></p>
             </small>
             <LinkContainer to="/create">
               <Button bsSize="large" bsStyle="success">
@@ -34,6 +40,17 @@ class Index extends Component {
               <p><small>No signup required</small></p>
             </div>
           </Jumbotron>
+          <Row className="marketing">
+            <Col md={6}>
+              <ul>
+                <li><Icon type="check-square-o" /> Gift lists</li>
+                <li><Icon type="check-square-o" /> Group brainstorming</li>
+                <li><Icon type="check-square-o" /> Shared to-do lists</li>
+                <li><Icon type="check-square-o" /> Real-time updates</li>
+                <li><Icon type="check-square-o" /> Supports <a href="https://daringfireball.net/projects/markdown/">Markdown</a></li>
+              </ul>
+            </Col>
+          </Row>
         </div>
         <Footer />
       </div>

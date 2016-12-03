@@ -7,10 +7,13 @@ import {
   Popover,
   Label,
   Tooltip,
+  Row,
+  Col,
 } from 'react-bootstrap';
 import { RIEInput } from 'riek';
 import { Link } from 'react-router';
 import { arrayMove } from 'react-sortable-hoc';
+import TimeAgo from 'timeago.js';
 
 import Client from '../Client';
 import ItemList from './ItemList';
@@ -25,6 +28,7 @@ import './ListDetail.css';
 
 const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
 const nesClient = new Nes.Client(websocketURI);
+const timeago = new TimeAgo();
 
 function AddItemInput({ onSubmit, onChange, value }) {
   return (
@@ -89,6 +93,20 @@ function ListDetail(props) {
       </h4>
     </span>
   );
+
+  let updatedAtDisplay;
+  if (props.updatedAt && props.updatedAt !== props.createdAt) {
+    const updatedAtDateText = timeago.format(props.updatedAt || props.createdAt);
+    updatedAtDisplay = (
+      <Row>
+        <Col md={12}>
+          <small className="ListDetail-updatedat text-muted pull-right">Updated {updatedAtDateText}</small>
+        </Col>
+      </Row>
+    );
+  } else {
+    updatedAtDisplay = '';
+  }
   return (
     <div className="ListDetail">
       <Header navLinks={navLinks}>
@@ -103,6 +121,7 @@ function ListDetail(props) {
           />
         </div> : ''
       }
+      {updatedAtDisplay}
       <AddItemInput value={props.value} onSubmit={props.onSubmit} onChange={props.onChange} />
       {items.length ? <ItemList
         onSortEnd={props.onSortEnd}
@@ -123,6 +142,8 @@ export default class ListDetailContainer extends React.Component {
   state = {
     title: '',
     value: '',
+    createdAt: null,
+    updatedAt: null,
     items: [],
     error: null,
     description: '',
@@ -133,6 +154,8 @@ export default class ListDetailContainer extends React.Component {
       .then((json) => {
         this.setState({
           title: json.title,
+          createdAt: json.createdAt,
+          updatedAt: json.updatedAt,
           items: json.items || [],
           description: json.description,
         });
@@ -259,6 +282,8 @@ export default class ListDetailContainer extends React.Component {
         title={this.state.title}
         items={this.state.items}
         value={this.state.value}
+        updatedAt={this.state.updatedAt}
+        createdAt={this.state.createdAt}
         description={this.state.description}
         listID={this.props.params.listID}
         onChange={this.handleChange}

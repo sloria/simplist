@@ -95,6 +95,20 @@ describe('API', () => {
       });
     });
 
+    it('should create a new list with date updated', (done) => {
+      const opts = {
+        method: 'POST',
+        url: '/api/lists/',
+      };
+      server.inject(opts, (resp) => {
+        expect(resp.statusCode).to.equal(201);
+        db.collection('lists').find().limit(1).next((err, result) => {
+          expect(result.updatedAt).to.be.a.date();
+          done();
+        });
+      });
+    });
+
     it('should return the newly created list', (done) => {
       const opts = {
         method: 'POST',
@@ -145,6 +159,25 @@ describe('API', () => {
           expect(resp.statusCode).to.equal(201);
           db.collection('items').find().toArray((err, result) => {
             expect(result.length).to.equal(1);
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
+    it('should update list\'s updatedAt', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'POST',
+          url: `/api/lists/${newList._id}/items/`,
+          payload: {
+            content: 'Lorem ipsum',
+          },
+        };
+        server.inject(options, (resp) => {
+          expect(resp.statusCode).to.equal(201);
+          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+            expect(result.updatedAt).to.be.greaterThan(result.createdAt);
             done();
           });
         });
@@ -204,6 +237,29 @@ describe('API', () => {
           db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
             expect(result.title).to.equal('Foo bar baz');
             done();
+          });
+        });
+      });
+    });
+
+    it('should update updatedAt', (done) => {
+      service.createList().then((newList) => {
+        const options = {
+          method: 'PATCH',
+          url: `/api/lists/${newList._id}`,
+          payload: {
+            title: 'Foo bar baz',
+          },
+        };
+
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          const originalUpdatedAt = result.updatedAt;
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('lists').findOne({ _id: newList._id }, (err2, updatedList) => {
+              expect(updatedList.updatedAt).to.be.greaterThan(originalUpdatedAt);
+              done();
+            });
           });
         });
       });
@@ -331,6 +387,25 @@ describe('API', () => {
         });
       });
     });
+
+    it('should update updatedAt', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0]._id;
+          const options = {
+            method: 'DELETE',
+            url: `/api/lists/${list._id}/items/${itemID}`,
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('edit item endpoint', () => {
@@ -351,6 +426,29 @@ describe('API', () => {
             db.collection('items').findOne({ _id: itemID }, (err, result) => {
               expect(result.content).to.equal('Quux');
               expect(result.checked).to.be.true();
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should edit update updatedAt', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0]._id;
+          const options = {
+            method: 'PATCH',
+            url: `/api/lists/${list._id}/items/${itemID}`,
+            payload: {
+              content: 'Quux',
+              checked: true,
+            },
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
               done();
             });
           });
@@ -392,6 +490,25 @@ describe('API', () => {
             expect(resp.statusCode).to.equal(200);
             db.collection('items').findOne({ _id: itemID }, (err, result) => {
               expect(result.checked).to.be.true();
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should update list\'s updatedAt', (done) => {
+      service.createList().then((list) => {
+        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
+          const itemID = updatedList.items[0]._id;
+          const options = {
+            method: 'POST',
+            url: `/api/lists/${list._id}/items/${itemID}/toggle`,
+          };
+          server.inject(options, (resp) => {
+            expect(resp.statusCode).to.equal(200);
+            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
               done();
             });
           });

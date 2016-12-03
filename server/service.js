@@ -21,19 +21,19 @@ class SimplistService {
   }
   createList({ title = '' } = {}) {
     return new Promise((resolve, reject) => {
+      const createdAt = new Date();
       generateID().then((_id) => {
         const newList = {
           _id,
           title,
           items: [],
-          createdAt: new Date(),
+          createdAt,
+          updatedAt: createdAt,
           isDeleted: false,
           description: DEFAULT_DESCRIPTION,
         };
         this.db.collection('lists').insertOne(newList, (err) => {
-          if (err) {
-            reject(err);
-          }
+          if (err) { reject(err); }
           resolve(newList);
         });
       });
@@ -88,7 +88,9 @@ class SimplistService {
     const validFields = ['title', 'items', 'description'];
     const validData = _.pick(data, validFields);
     return new Promise((resolve, reject) => {
-      this.db.collection('lists').updateOne({ _id }, { $set: validData }, (err, result) => {
+      const updatedAt = new Date();
+      const updatedData = Object.assign({}, validData, { updatedAt });
+      this.db.collection('lists').updateOne({ _id }, { $set: updatedData }, (err, result) => {
         if (err) { reject(err); }
         if (!result.matchedCount) {
           reject(new RecordNotFoundError(`List with _id ${_id} not found.`));
@@ -124,8 +126,8 @@ class SimplistService {
           this.db.collection('items').insertOne(newItem, (err2) => {
             if (err2) { reject(err2); }
             // Append new item's _id to list's items field
-            this.db.collection('lists').findOneAndUpdate({ _id }, { $push: { items: newItem._id } }, {
-              returnOriginal: false,  // return the updated record
+            const ops = { $push: { items: newItem._id }, $set: { updatedAt: new Date() } };
+            this.db.collection('lists').findOneAndUpdate({ _id }, ops, { returnOriginal: false,  // return the updated record
             }, (err3, listResult) => {
               if (err3) { reject(err3); }
               const updatedList = listResult.value;
@@ -156,19 +158,22 @@ class SimplistService {
         if (!result.matchedCount) {
           reject(new RecordNotFoundError(`Item with _id ${itemID} not found.`));
         }
-        this.db.collection('lists').findOne({ _id: listID }, (err2, updatedList) => {
+        this.db.collection('lists').updateOne({ _id: listID }, { $set: { updatedAt: new Date() } }, (err2) => {
           if (err2) { reject(err2); }
-          this._replaceItems(updatedList).then((finalList) => {
-            this.publish(listID, finalList);
-            resolve(finalList);
-          }).catch(reject);
+          this.db.collection('lists').findOne({ _id: listID }, (err3, updatedList) => {
+            if (err3) { reject(err3); }
+            this._replaceItems(updatedList).then((finalList) => {
+              this.publish(listID, finalList);
+              resolve(finalList);
+            }).catch(reject);
+          });
         });
       });
     });
   }
   removeItem({ listID, itemID }) {
     return new Promise((resolve, reject) => {
-      this.db.collection('lists').updateOne({ _id: listID }, { $pull: { items: itemID } }, (err, result) => {
+      this.db.collection('lists').updateOne({ _id: listID }, { $pull: { items: itemID }, $set: { updatedAt: new Date() } }, (err, result) => {
         if (err) { reject(err); }
         if (!result.matchedCount) {
           reject(new RecordNotFoundError(`List with _id ${listID} not found.`));

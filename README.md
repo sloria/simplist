@@ -1,5 +1,7 @@
 # Simplist
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/sloria/simplist.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/sloria/simplist.svg?branch=master)](https://travis-ci.org/sloria/simplist)
 
 One-click, collaborative lists.

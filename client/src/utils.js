@@ -9,6 +9,6 @@ export function updateInArray(array, predicate, update) {
   return replaceAt(
     array,
     index,
-    Object.assign({}, array[index], update(array[index])),
+    Object.assign({}, array[index], update(array[index]))
   );
 }

@@ -1,21 +1,20 @@
 {
+  "extends": "eslint:recommended",
   "env": {
-    "browser": true
+    "browser": true,
+    "commonjs": true,
+    "node": true,
+    "es6": true
   },
-  "parser": "babel-eslint",
-  "extends": "airbnb",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "sourceType": "module"
+  },
   "rules": {
-    "no-console": 0,
-    "new-cap": 0,
-    "react/prefer-stateless-function": 0,
-    "react/jsx-filename-extension": 0,
-    "react/prop-types": 0,
-    "react/no-multi-comp": 0,
-    "jsx-a11y/no-static-element-interactions": 1,
-    "react/forbid-prop-types": 0,
-    "arrow-body-style": 0,
-    "no-return-assign": 0,
-    "no-underscore-dangle": 0,
-    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}]
+    "no-console": "off",
+    "strict": ["error", "global"]
   }
 }

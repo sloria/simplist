@@ -1,6 +1,5 @@
-// src/routes.js
-import React from 'react';
-import { Router, Route } from 'react-router';
+import React from 'react';  // eslint-disable-line
+import { Router, Route } from 'react-router';  // eslint-disable-line
 
 import App from './components/App';
 import Index from './components/Index';

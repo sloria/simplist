@@ -15,7 +15,7 @@
     "test:client": "cd client && CI=true npm test",
     "test": "npm run lint && NODE_ENV=test npm run test:server && npm run test:client",
     "lint": "eslint .",
-    "preinstall": "cd client && npm install",
+    "preinstall": "cd client && yarn install",
     "deploy": "npm test && NODE_ENV=production npm run build && git add . && git commit -am \"[auto] Build for production\" ; git push heroku master"
   },
   "author": "Steven Loria",

@@ -24,14 +24,16 @@ describe('API', () => {
       db = server.mongo.db;
       service = server.simplist.service;
       // Clear database after each test
-      service._clearAll();
-      done();
+      service._clearAll().then(() => {
+        done();
+      });
     });
   });
 
   afterEach((done) => {
-    service._clearAll();
-    done();
+    service._clearAll().then(() => {
+      done();
+    });
   });
 
   describe('index', () => {

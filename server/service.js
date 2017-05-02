@@ -81,7 +81,7 @@ class SimplistService {
     });
   }
   _clearAll() {
-    this.db.dropDatabase();
+    return this.db.dropDatabase();
   }
   updateList(_id, data) {
     // TODO: Validate item IDs

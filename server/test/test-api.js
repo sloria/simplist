@@ -19,21 +19,20 @@ describe('API', () => {
   let service;
   let db;
 
-  beforeEach((done) => {
-    server = makeServer(() => {
-      db = server.mongo.db;
-      service = server.simplist.service;
-      // Clear database after each test
-      service._clearAll().then(() => {
-        done();
+  beforeEach(() => {
+    return new Promise((resolve, reject) => {
+      makeServer().then((s) => {
+        server = s;
+        db = server.mongo.db;
+        service = server.simplist.service;
+        // Clear database after each test
+        service._clearAll().then(resolve, reject);
       });
-    });
+    })
   });
 
-  afterEach((done) => {
-    service._clearAll().then(() => {
-      done();
-    });
+  afterEach(() => {
+    return service._clearAll();
   });
 
   describe('index', () => {

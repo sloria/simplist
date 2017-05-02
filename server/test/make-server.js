@@ -4,7 +4,7 @@ const SimplistService = require('../service');
 const SimplistAPI = require('../api');
 const SimplistDatabase = require('../database');
 
-module.exports = function makeTestServer(done) {
+module.exports = function makeTestServer() {
   const plugins = [
     {
       register: SimplistDatabase,
@@ -20,11 +20,9 @@ module.exports = function makeTestServer(done) {
   ];
   const server = new Hapi.Server();
   server.connection({ port: 8888 });
-  server.register(plugins, (err) => {
-    if (err) {
-      done(err);
-    }
-    server.initialize(done);
+  return new Promise((resolve, reject) => {
+    server.register(plugins).then(() => {
+      server.initialize().then(() => resolve(server), reject);
+    }, reject);
   });
-  return server;
 };

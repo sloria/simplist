@@ -27,7 +27,7 @@
     "babel-preset-airbnb": "^2.1.1",
     "babel-preset-stage-0": "6.24.1",
     "blipp": "^2.3.0",
-    "boom": "^4.2.0",
+    "boom": "^5.0.0",
     "dotenv": "^4.0.0",
     "fs": "0.0.2",
     "good": "^7.0.2",

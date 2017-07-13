@@ -18,6 +18,9 @@
     "preinstall": "cd client && yarn install",
     "deploy": "npm test && NODE_ENV=production npm run build && git add . && git commit -am \"[auto] Build for production\" ; git push heroku master"
   },
+  "engines": {
+    "node": "6.11.1"
+  },
   "author": "Steven Loria",
   "license": "MIT",
   "dependencies": {

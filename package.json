@@ -19,7 +19,7 @@
     "deploy": "npm test && NODE_ENV=production npm run build && git add . && git commit -am \"[auto] Build for production\" ; git push heroku master"
   },
   "engines": {
-    "node": "6.11.1"
+    "node": "8.x.x"
   },
   "author": "Steven Loria",
   "license": "MIT",

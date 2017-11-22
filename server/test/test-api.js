@@ -1,4 +1,3 @@
-const { expect } = require('code');
 const Lab = require('lab');
 const _ = require('lodash');
 
@@ -9,7 +8,8 @@ const {
   describe,
   it,
   beforeEach,
-  afterEach
+  afterEach,
+  expect,
 } = exports.lab = Lab.script();
 
 describe('API', () => {
@@ -17,500 +17,488 @@ describe('API', () => {
   let service;
   let db;
 
-  beforeEach(() => {
-    return new Promise((resolve, reject) => {
-      makeServer().then((s) => {
-        server = s;
-        db = server.mongo.db;
-        service = server.simplist.service;
-        // Clear database before each test
-        service._clearAll().then(resolve, reject);
-      });
-    })
+  beforeEach(async () => {
+    const s = await makeServer();
+    server = s;
+    db = server.mongo.db;
+    service = server.simplist.service;
+    await service._clearAll();
   });
 
-  afterEach(() => {
-    return service._clearAll();
+  afterEach(async () => {
+    await service._clearAll();
   });
 
   describe('index', () => {
-    it('should respond with 200', (done) => {
-      server.inject('/api/', (resp) => {
-        expect(resp.statusCode).to.equal(200);
-        done();
-      });
+    it('should respond with 200', async () => {
+      const resp = await server.inject('/api/');
+      expect(resp.statusCode).to.equal(200);
+      expect(resp.result).to.equal({ message: 'Welcome to the Simplist API' });
     });
   });
 
   describe('get list endpoint', () => {
-    it('should retrieve a list', (done) => {
-      service.createList().then((newList) => {
-        server.inject(`/api/lists/${newList._id}`, (resp) => {
-          expect(resp.statusCode).to.equal(200);
-          const body = JSON.parse(resp.payload);
-          expect(body._id).to.equal(newList._id);
-          done();
-        });
-      }).catch(done);
+    it('should retrieve a list', async () => {
+      const newList = await service.createList();
+      const resp = await server.inject(`/api/lists/${newList._id}`);
+      expect(resp.statusCode).to.equal(200);
+      const body = resp.result;
+      expect(body._id).to.equal(newList._id);
     });
 
-    it('should error if list not found', (done) => {
-      server.inject('/api/lists/notfound', (resp) => {
-        expect(resp.statusCode).to.equal(404);
-        const body = JSON.parse(resp.payload);
-        expect(body.message).to.equal('List with id notfound not found.');
-        done();
-      });
+    it('should error if list not found', async () => {
+      const resp = await server.inject('/api/lists/notfound')
+      expect(resp.statusCode).to.equal(404);
+      const body = resp.result;
+      expect(body.message).to.equal('List with id notfound not found.');
     });
   });
 
   describe('create list endpoint', () => {
-    it('should create a new list', (done) => {
+    it('should create a new list', async () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
       };
-      server.inject(opts, (resp) => {
-        expect(resp.statusCode).to.equal(201);
-        service.getLists().then((result) => {
-          expect(result.length).to.equal(1);
-          done();
-        });
-      });
+      const resp = await server.inject(opts)
+      expect(resp.statusCode).to.equal(201);
+      const result = await service.getLists();
+      expect(result.length).to.equal(1);
+      const list = result[0];
+      expect(resp.result._id).to.equal(list._id);
     });
 
-    it('should create a new list with default description', (done) => {
+    it('should create a new list with default description', async () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
       };
-      server.inject(opts, (resp) => {
-        expect(resp.statusCode).to.equal(201);
+      const resp = await server.inject(opts)
+      expect(resp.statusCode).to.equal(201);
+      return new Promise((resolve, reject) => {
         db.collection('lists').find().limit(1).next((err, result) => {
+          if (err) {
+            reject(err);
+          }
           expect(result.description).to.be.a.string();
           expect(result.description).to.equal(DEFAULT_DESCRIPTION);
-          done();
+          resolve();
         });
-      });
+      })
     });
 
-    it('should create a new list with date updated', (done) => {
+    it('should create a new list with date updated', async () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
       };
-      server.inject(opts, (resp) => {
-        expect(resp.statusCode).to.equal(201);
+      const resp = await server.inject(opts);
+      expect(resp.statusCode).to.equal(201);
+      return new Promise((resolve, reject) => {
         db.collection('lists').find().limit(1).next((err, result) => {
+          if (err) {
+            reject(err);
+          }
           expect(result.updatedAt).to.be.a.date();
-          done();
+          resolve();
         });
       });
     });
 
-    it('should return the newly created list', (done) => {
+    it('should return the newly created list', async () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
       };
-      server.inject(opts, (resp) => {
-        const body = JSON.parse(resp.payload);
-        expect(body).to.include('_id');
-        const promise = service.getList(body._id);
-        promise.then((list) => {
-          expect(list).to.exist();
-          expect(list.title).to.equal('');
-          done();
-        }).catch(done);
-      });
+      const resp = await server.inject(opts)
+      const body = resp.result;
+      expect(body).to.include('_id');
+      const list = await service.getList(body._id);
+      expect(list).to.exist();
+      expect(list.title).to.equal('');
     });
 
-    it('should receive a title', (done) => {
+    it('should receive a title', async () => {
       const opts = {
         method: 'POST',
         url: '/api/lists/',
         payload: { title: 'foo' },
       };
-      server.inject(opts, (resp) => {
-        const body = JSON.parse(resp.payload);
-        expect(body).to.include('title');
-        const promise = service.getList(body._id);
-        promise.then((list) => {
-          expect(list).to.exist();
-          expect(list.title).to.equal('foo');
-          done();
-        }).catch(done);
-      });
+      const resp = await server.inject(opts)
+      const body = resp.result;
+      expect(body).to.include('title');
+      const list = await service.getList(body._id);
+      expect(list).to.exist();
+      expect(list.title).to.equal('foo');
     });
   });
 
   describe('create list items endpoint', () => {
-    it('should create a new item on POST', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'POST',
-          url: `/api/lists/${newList._id}/items/`,
-          payload: {
-            content: 'Lorem ipsum',
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(201);
-          db.collection('items').find().toArray((err, result) => {
-            expect(result.length).to.equal(1);
-            done();
-          });
+    it('should create a new item on POST', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${newList._id}/items/`,
+        payload: {
+          content: 'Lorem ipsum',
+        },
+      };
+      const resp = await server.inject(options)
+      expect(resp.statusCode).to.equal(201);
+      return new Promise((resolve, reject) => {
+        db.collection('items').find().toArray((err, result) => {
+          if (err) {
+            reject(err);
+          }
+          expect(result.length).to.equal(1);
+          resolve();
         });
-      }).catch(done);
+      });
     });
 
-    it('should update list\'s updatedAt', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'POST',
-          url: `/api/lists/${newList._id}/items/`,
-          payload: {
-            content: 'Lorem ipsum',
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(201);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.updatedAt).to.be.greaterThan(result.createdAt);
-            done();
-          });
+    it("should update list's updatedAt", async () => {
+      const newList = await service.createList()
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${newList._id}/items/`,
+        payload: {
+          content: 'Lorem ipsum',
+        },
+      };
+      const resp = await server.inject(options)
+      expect(resp.statusCode).to.equal(201);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.updatedAt).to.be.greaterThan(result.createdAt);
+          resolve();
         });
-      }).catch(done);
+      })
     });
 
-    it('should error if content is too long', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'POST',
-          url: `/api/lists/${newList._id}/items/`,
-          payload: {
-            content: _.repeat('a', 501),
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(400);
-          done();
-        });
-      }).catch(done);
+    it('should error if content is too long', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${newList._id}/items/`,
+        payload: {
+          content: _.repeat('a', 501),
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(400);
     });
 
-    it('should modify the requested list', (done) => {
-      service.createList().then((newList) => {
-        expect(newList.items.length).to.equal(0);  // sanity check
-        const options = {
-          method: 'POST',
-          url: `/api/lists/${newList._id}/items/`,
-          payload: {
-            content: 'Lorem ipsum',
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(201);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.items.length).to.equal(1);
-            expect(result.items[0]).to.be.a.string();
-            done();
-          });
+    it('should modify the requested list', async () => {
+      const newList = await service.createList();
+      expect(newList.items.length).to.equal(0);  // sanity check
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${newList._id}/items/`,
+        payload: {
+          content: 'Lorem ipsum',
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(201);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.items.length).to.equal(1);
+          expect(result.items[0]).to.be.a.string();
+          resolve();
         });
-      }).catch(done);
+      });
     });
   });
 
   describe('update list endpoint', () => {
-    it('should update title', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            title: 'Foo bar baz',
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(200);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.title).to.equal('Foo bar baz');
-            done();
-          });
-        });
-      });
-    });
-
-    it('should update updatedAt', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            title: 'Foo bar baz',
-          },
-        };
-
+    it('should update title', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          title: 'Foo bar baz',
+        },
+      };
+      const resp = await server.inject(options)
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
         db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.title).to.equal('Foo bar baz');
+          resolve();
+        });
+      });
+    });
+
+    it('should update updatedAt', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          title: 'Foo bar baz',
+        },
+      };
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, async (err, result) => {
+          if (err) { reject(err); }
           const originalUpdatedAt = result.updatedAt;
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('lists').findOne({ _id: newList._id }, (err2, updatedList) => {
-              expect(updatedList.updatedAt).to.be.greaterThan(originalUpdatedAt);
-              done();
-            });
+          const resp = await server.inject(options);
+          expect(resp.statusCode).to.equal(200);
+          db.collection('lists').findOne({ _id: newList._id }, (err2, updatedList) => {
+            if (err2) { reject(err2); }
+            expect(updatedList.updatedAt).to.be.greaterThan(originalUpdatedAt);
+            resolve();
           });
         });
       });
     });
 
-    it('should error if title is too long', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            title: _.repeat('a', 201),
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(400);
-          done();
-        });
-      });
+    it('should error if title is too long', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          title: _.repeat('a', 201),
+        },
+      };
+      const resp = await server.inject(options)
+      expect(resp.statusCode).to.equal(400);
     });
 
-    it('should update the description', (done) => {
+    it('should update the description', async () => {
       const description = '*Foo* [bar](https://baz.qux)';
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            description,
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(200);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.description).to.equal(description);
-            done();
-          });
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          description,
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.description).to.equal(description);
+          resolve();
         });
       });
     });
 
-    it('should error if description too long', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            description: _.repeat('a', 1001),
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(400);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.description).to.equal(DEFAULT_DESCRIPTION);
-            done();
-          });
+    it('should error if description too long', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          description: _.repeat('a', 1001),
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(400);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.description).to.equal(DEFAULT_DESCRIPTION);
+          resolve();
         });
       });
     });
 
-    it('should allow blank descriptions', (done) => {
-      service.createList().then((newList) => {
-        const options = {
-          method: 'PATCH',
-          url: `/api/lists/${newList._id}`,
-          payload: {
-            description: '',
-          },
-        };
-        server.inject(options, (resp) => {
-          expect(resp.statusCode).to.equal(200);
-          db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
-            expect(result.description).to.equal('');
-            done();
-          });
+    it('should allow blank descriptions', async () => {
+      const newList = await service.createList();
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${newList._id}`,
+        payload: {
+          description: '',
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: newList._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.description).to.equal('');
+          resolve();
         });
       });
     });
 
-    it('should allow reordering of items', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'foo').then(() => {
-          service.addItemToList(list._id, 'bar').then((updatedList) => {
-            expect(updatedList.items.length).to.equal(2);  // sanity check
+    it('should allow reordering of items', async () => {
+      const list = await service.createList();
+      await service.addItemToList(list._id, 'foo');
+      const updatedList = await service.addItemToList(list._id, 'bar');
+      expect(updatedList.items.length).to.equal(2);  // sanity check
 
-            const itemIDs = updatedList.items.map(item => item._id);
-            const reorderedIDs = _.reverse(itemIDs);
+      const itemIDs = updatedList.items.map(item => item._id);
+      const reorderedIDs = _.reverse(itemIDs);
 
-            const options = {
-              method: 'PATCH',
-              url: `/api/lists/${list._id}`,
-              payload: {
-                items: reorderedIDs,
-              },
-            };
-            server.inject(options, (resp) => {
-              expect(resp.statusCode).to.equal(200);
-              db.collection('lists').findOne({ _id: list._id }, (err, result) => {
-                expect(result.items).to.equal(reorderedIDs);
-                done();
-              });
-            });
-          });
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${list._id}`,
+        payload: {
+          items: reorderedIDs,
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.items).to.equal(reorderedIDs);
+          resolve();
         });
       });
     });
   });
 
   describe('delete item endpoint', () => {
-    it('should remove item from a list', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'DELETE',
-            url: `/api/lists/${list._id}/items/${itemID}`,
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
-              expect(result.items.length).to.equal(0);
-              done();
-            });
-          });
+    it('should remove item from a list', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz')
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'DELETE',
+        url: `/api/lists/${list._id}/items/${itemID}`,
+      };
+      const resp = await server.inject(options)
+      expect(resp.statusCode).to.equal(204);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.items.length).to.equal(0);
+          resolve();
         });
       });
     });
 
-    it('should update updatedAt', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'DELETE',
-            url: `/api/lists/${list._id}/items/${itemID}`,
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
-              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
-              done();
-            });
-          });
+    it('should update updatedAt', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'DELETE',
+        url: `/api/lists/${list._id}/items/${itemID}`,
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(204);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.updatedAt).to.be.greaterThan(result.createdAt);
+          resolve();
         });
-      });
+      })
     });
   });
 
   describe('edit item endpoint', () => {
-    it('should edit an item', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'PATCH',
-            url: `/api/lists/${list._id}/items/${itemID}`,
-            payload: {
-              content: 'Quux',
-              checked: true,
-            },
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('items').findOne({ _id: itemID }, (err, result) => {
-              expect(result.content).to.equal('Quux');
-              expect(result.checked).to.be.true();
-              done();
-            });
-          });
+    it('should edit an item', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${list._id}/items/${itemID}`,
+        payload: {
+          content: 'Quux',
+          checked: true,
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('items').findOne({ _id: itemID }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.content).to.equal('Quux');
+          expect(result.checked).to.be.true();
+          resolve();
         });
       });
     });
 
-    it('should edit update updatedAt', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'PATCH',
-            url: `/api/lists/${list._id}/items/${itemID}`,
-            payload: {
-              content: 'Quux',
-              checked: true,
-            },
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
-              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
-              done();
-            });
-          });
+    it('should edit update updatedAt', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${list._id}/items/${itemID}`,
+        payload: {
+          content: 'Quux',
+          checked: true,
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.updatedAt).to.be.greaterThan(result.createdAt);
+          resolve();
         });
       });
     });
 
-    it('should error if content too long', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'PATCH',
-            url: `/api/lists/${list._id}/items/${itemID}`,
-            payload: {
-              content: _.repeat('a', 501),
-              checked: true,
-            },
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(400);
-            done();
-          });
-        });
-      });
+    it('should error if content too long', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'PATCH',
+        url: `/api/lists/${list._id}/items/${itemID}`,
+        payload: {
+          content: _.repeat('a', 501),
+          checked: true,
+        },
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(400);
     });
   });
 
   describe('toggle item endpoint', () => {
-    it('should toggle checked state', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'POST',
-            url: `/api/lists/${list._id}/items/${itemID}/toggle`,
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('items').findOne({ _id: itemID }, (err, result) => {
-              expect(result.checked).to.be.true();
-              done();
-            });
-          });
+    it('should toggle checked state', async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${list._id}/items/${itemID}/toggle`,
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('items').findOne({ _id: itemID }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.checked).to.be.true();
+          resolve();
         });
       });
     });
 
-    it('should update list\'s updatedAt', (done) => {
-      service.createList().then((list) => {
-        service.addItemToList(list._id, 'Foo bar baz').then((updatedList) => {
-          const itemID = updatedList.items[0]._id;
-          const options = {
-            method: 'POST',
-            url: `/api/lists/${list._id}/items/${itemID}/toggle`,
-          };
-          server.inject(options, (resp) => {
-            expect(resp.statusCode).to.equal(200);
-            db.collection('lists').findOne({ _id: list._id }, (err, result) => {
-              expect(result.updatedAt).to.be.greaterThan(result.createdAt);
-              done();
-            });
-          });
+    it("should update list's updatedAt", async () => {
+      const list = await service.createList();
+      const updatedList = await service.addItemToList(list._id, 'Foo bar baz');
+      const itemID = updatedList.items[0]._id;
+      const options = {
+        method: 'POST',
+        url: `/api/lists/${list._id}/items/${itemID}/toggle`,
+      };
+      const resp = await server.inject(options);
+      expect(resp.statusCode).to.equal(200);
+      return new Promise((resolve, reject) => {
+        db.collection('lists').findOne({ _id: list._id }, (err, result) => {
+          if (err) { reject(err); }
+          expect(result.updatedAt).to.be.greaterThan(result.createdAt);
+          resolve();
         });
       });
     });

@@ -1,8 +1,6 @@
 require('dotenv').config();
 const path = require('path');
 const Hapi = require('hapi');
-const Good = require('good');
-const Blipp = require('blipp');
 const Inert = require('inert');
 
 const SimplistService = require('./service');
@@ -11,32 +9,7 @@ const SimplistAPI = require('./api');
 
 const config = require('../shared-config');
 
-
-const server = new Hapi.Server();
-server.connection({
-  port: config.port,
-});
-
-// Set up logging
-server.register({
-  register: Good,
-  options: {
-    reporters: {
-      console: [
-        {
-          module: 'good-squeeze',
-          name: 'Squeeze',
-          args: [{ log: '*', response: '*', error: '*' }],
-        },
-        {
-          module: 'good-console',
-        },
-        'stdout',
-      ],
-    },
-  },
-});
-
+const server = new Hapi.Server({ port: config.port });
 
 // Serve built static files on production
 // In development, we use the webpack-dev-server
@@ -66,24 +39,26 @@ if (process.env.NODE_ENV === 'production') {
 
 // Set up the application
 server.register([
-  Blipp,
   {
-    register: SimplistDatabase,
+    plugin: SimplistDatabase,
     options: {
       url: process.env.MONGODB_URI,
       decorate: true,
     },
   },
   {
-    register: SimplistService,
+    plugin: SimplistService,
     options: {
       publish: (listID, payload) => {
         server.publish(`/s/lists/${listID}`, payload);
       },
     },
   },
-  SimplistAPI,
-], () => {
+  {
+    plugin: SimplistAPI,
+    options: {},
+  },
+]).then(() => {
   // Start the server
   server.start((err) => {
     if (err) { throw err; }

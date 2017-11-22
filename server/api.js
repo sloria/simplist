@@ -14,60 +14,63 @@ const Service = require('./service');
 const RecordNotFoundError = Service.RecordNotFoundError;
 
 
-function registerAPIRoutes(server, next) {
+function registerAPIRoutes(server) {
   server.route({
     method: 'GET',
     path: '/api/',
-    handler: (request, reply) => {
-      return reply({ message: 'Welcome to the Simplist API' });
+    handler: () => {
+      return { message: 'Welcome to the Simplist API' };
     },
   });
 
   server.route({
     method: 'GET',
     path: '/api/lists/{listID}',
-    handler: (request, reply) => {
+    handler: async (request) => {
       const service = request.simplist.service;
       const listID = request.params.listID;
-      service.getList(listID)
-        .then(reply)
-        .catch((err) => {
-          if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
-          } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
-          }
-        });
+      try {
+        const result = await service.getList(listID);
+        return result;
+      } catch(err) {
+        if (err instanceof RecordNotFoundError) {
+          throw Boom.notFound(`List with id ${listID} not found.`);
+        } else {
+          throw Boom.wrap(err, 500, 'Unexpected error occurred.');
+        }
+      }
     },
   });
 
   server.route({
     method: 'POST',
     path: '/api/lists/',
-    handler: (request, reply) => {
+    handler: async (request, h) => {
       const service = request.simplist.service;
       const title = _.get(request, 'payload.title') || '';
-      service.createList({ title })
-        .then(newList => reply(newList).code(201))
-        .catch(err => reply(Boom.wrap(err)));
+      try {
+        const result = await service.createList({ title });
+        return h.response(result).code(201);
+      } catch(err) {
+        throw Boom.wrap(err);
+      }
     },
   });
 
   server.route({
     method: 'POST',
     path: '/api/lists/{listID}/items/',
-    handler: (request, reply) => {
+    handler: (request, h) => {
       const service = request.simplist.service;
       const listID = request.params.listID;
       const content = request.payload.content;
-
-      service.addItemToList(listID, content)
-        .then(updatedList => reply(updatedList).code(201))
+      return service.addItemToList(listID, content)
+        .then(updatedList => h.response(updatedList).code(201))
         .catch((err) => {
           if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
+            throw Boom.notFound(`List with id ${listID} not found.`);
           } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
+            throw Boom.wrap(err, 500, 'Unexpected error occurred.');
           }
         });
     },
@@ -83,18 +86,18 @@ function registerAPIRoutes(server, next) {
   server.route({
     method: 'PATCH',
     path: '/api/lists/{listID}',
-    handler: (request, reply) => {
+    handler: async (request) => {
       const service = request.simplist.service;
       const listID = request.params.listID;
-      service.updateList(listID, request.payload)
-        .then(reply)
-        .catch((err) => {
-          if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
-          } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
-          }
-        });
+      try {
+        return await service.updateList(listID, request.payload);
+      } catch (err) {
+        if (err instanceof RecordNotFoundError) {
+          throw Boom.notFound(`List with id ${listID} not found.`);
+        } else {
+          throw Boom.wrap(err, 500, 'Unexpected error occurred.');
+        }
+      }
     },
     config: {
       validate: {
@@ -110,36 +113,37 @@ function registerAPIRoutes(server, next) {
   server.route({
     method: 'DELETE',
     path: '/api/lists/{listID}/items/{itemID}',
-    handler: (request, reply) => {
+    handler: async (request, h) => {
       const service = request.simplist.service;
       const { listID, itemID } = request.params;
-      service.removeItem({ listID, itemID })
-        .then(reply)
-        .catch((err) => {
-          if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
-          } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
-          }
-        });
+      try {
+        await service.removeItem({ listID, itemID })
+        return h.response(null).code(204);
+      } catch (err) {
+        if (err instanceof RecordNotFoundError) {
+          throw Boom.notFound('Item not found');
+        } else {
+          throw Boom.wrap(err, 500, 'Unexpected error occurred.');
+        }
+      }
     },
   });
 
   server.route({
     method: 'PATCH',
     path: '/api/lists/{listID}/items/{itemID}',
-    handler: (request, reply) => {
+    handler: async (request) => {
       const service = request.simplist.service;
       const { listID, itemID } = request.params;
-      service.editItem({ listID, itemID, data: request.payload })
-        .then(reply)
-        .catch((err) => {
-          if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
-          } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
-          }
-        });
+      try {
+        return await service.editItem({ listID, itemID, data: request.payload });
+      } catch (err) {
+        if (err instanceof RecordNotFoundError) {
+          throw Boom.notFound(`List with id ${listID} not found.`);
+        } else {
+          throw Boom.wrap(err, 500, 'Unexpected error occurred.');
+        }
+      }
     },
     config: {
       validate: {
@@ -154,37 +158,32 @@ function registerAPIRoutes(server, next) {
   server.route({
     method: 'POST',
     path: '/api/lists/{listID}/items/{itemID}/toggle',
-    handler: (request, reply) => {
+    handler: async (request) => {
       const service = request.simplist.service;
       const { listID, itemID } = request.params;
-      service.toggleItem({ listID, itemID })
-        .then(reply)
-        .catch((err) => {
-          if (err instanceof RecordNotFoundError) {
-            reply(Boom.notFound(`List with id ${listID} not found.`));
-          } else {
-            reply(Boom.wrap(err, 500, 'Unexpected error occurred.'));
-          }
-        });
+      try {
+        return await service.toggleItem({ listID, itemID });
+      } catch (err) {
+        if (err instanceof RecordNotFoundError) {
+          throw Boom.notFound(`List with id ${listID} not found.`);
+        } else {
+          throw Boom.wrap(err, 500, 'Unexpected error occurred.');
+        }
+      }
     },
   });
-  next();
 }
 
 
-function registerWebsocketRoutes(server, next) {
+function registerWebsocketRoutes(server) {
   server.subscription('/s/lists/{listID}');
-  next();
 }
 
-exports.register = (server, options, next) => {
-  server.dependency('simplist-service', registerAPIRoutes);
-  server.dependency('nes', registerWebsocketRoutes);
-  server.register(Nes, () => {
-    next();
-  });
-};
-
-exports.register.attributes = {
+exports.plugin = {
   name: 'simplist-api',
+  async register(server) {
+    server.dependency('simplist-service', registerAPIRoutes);
+    await server.register(Nes);
+    server.dependency('nes', registerWebsocketRoutes);
+  },
 };

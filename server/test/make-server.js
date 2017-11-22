@@ -4,25 +4,25 @@ const SimplistService = require('../service');
 const SimplistAPI = require('../api');
 const SimplistDatabase = require('../database');
 
-module.exports = function makeTestServer() {
+module.exports = async function makeTestServer() {
   const plugins = [
     {
-      register: SimplistDatabase,
+      plugin: SimplistDatabase,
       options: {
         url: process.env.TEST_MONGODB_URI,
       },
     },
     {
-      register: SimplistService,
+      plugin: SimplistService,
       options: {},
     },
-    SimplistAPI,
+    {
+      plugin: SimplistAPI,
+      options: {}
+    },
   ];
-  const server = new Hapi.Server();
-  server.connection({ port: 8888 });
-  return new Promise((resolve, reject) => {
-    server.register(plugins).then(() => {
-      server.initialize().then(() => resolve(server), reject);
-    }, reject);
-  });
+  const server = new Hapi.Server({ port: 8888 });
+  await server.register(plugins);
+  await server.initialize();
+  return server;
 };

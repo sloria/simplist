@@ -12,6 +12,7 @@
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.2",
     "nes": "^6.3.1",
+    "prop-types": "^15.6.0",
     "react": "^15.4.1",
     "react-bootstrap": "^0.30.7",
     "react-contextmenu": "^2.0.0-alpha.2",

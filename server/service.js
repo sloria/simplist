@@ -199,26 +199,21 @@ class SimplistService {
 
 exports.RecordNotFoundError = RecordNotFoundError;
 exports.SimplistService = SimplistService;
-
-exports.register = (server, opts, next) => {
-  function initPlugin(s, n) {
-    const database = s.mongo.db;
-    const service = new SimplistService(database, {
-      publish: opts.publish,
-    });
-    // Expose the SimplistService instance on request and server
-    const decorations = {
-      service,
-    };
-    server.decorate('request', 'simplist', decorations);
-    server.decorate('server', 'simplist', decorations);
-    n();
-  }
-
-  server.dependency('simplist-database', initPlugin);
-  next();
-};
-
-exports.register.attributes = {
+exports.plugin = {
   name: 'simplist-service',
+  register: (server, opts) => {
+    function initPlugin(s) {
+      const database = s.mongo.db;
+      const service = new SimplistService(database, {
+        publish: opts.publish,
+      });
+      // Expose the SimplistService instance on request and server
+      const decorations = {
+        service,
+      };
+      server.decorate('request', 'simplist', decorations);
+      server.decorate('server', 'simplist', decorations);
+    }
+    server.dependency('simplist-database', initPlugin);
+  },
 };

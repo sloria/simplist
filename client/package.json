@@ -3,10 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:3001/",
-  "devDependencies": {
-    "react-scripts": "^0.9.5"
-  },
   "dependencies": {
+    "react-scripts": "^0.9.5",
     "bootstrap": "^3.3.7",
     "clipboard": "^1.5.15",
     "font-awesome": "^4.7.0",

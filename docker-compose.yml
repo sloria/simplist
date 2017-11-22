@@ -1,0 +1,14 @@
+# docker compose file for local development
+# NOTE: This only runs auxiliary services, not the main app
+version: '3'
+volumes:
+  mongo_data_vol:
+    external: false
+
+services:
+  mongo:
+    image: mongo:3.4
+    volumes:
+      - "${MONGO_DATA_VOL:-mongo_data_vol}:/data/db"
+    ports:
+      - 27017:27017

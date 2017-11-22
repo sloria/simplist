@@ -1,8 +1,7 @@
 # Simplist
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/sloria/simplist.svg)](https://greenkeeper.io/)
-
 [![Build Status](https://travis-ci.org/sloria/simplist.svg?branch=master)](https://travis-ci.org/sloria/simplist)
+[![Greenkeeper badge](https://badges.greenkeeper.io/sloria/simplist.svg)](https://greenkeeper.io/)
 
 One-click, collaborative lists.
 
@@ -14,13 +13,18 @@ This is a rough work yet, but here's a preview: [http://simplist.sloria.com](htt
 
 Simplist is comprised of a client-side SPA built with React.js and a server-side service built with Hapi.js.
 
-* Run MongoDB on localhost:27017
+* Run MongoDB using docker-compose
+
+```
+docker-compose up -d
+```
+
 * Clone this repo, install dependencies, and create a `.env` file.
 
 ```
 git clone https://github.com/sloria/simplist.git
 cd simplist
-npm install
+yarn install
 cp .env.example .env
 ```
 
@@ -28,23 +32,23 @@ cp .env.example .env
 
 ```bash
 # Run the app
-npm run start:dev
+yarn run start:dev
 ```
 
 ### Running tests
 
 ```bash
 # Run all tests
-npm test
+yarn test
 
 # Only run client tests
-npm run test:client
+yarn run test:client
 
 # Only run server tests
-npm run test:server
+yarn run test:server
 
 # Run server tests with debugging
-npm run test:server:debug
+yarn run test:server:debug
 ```
 
 ## License

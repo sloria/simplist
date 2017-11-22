@@ -14,7 +14,7 @@ const server = new Hapi.Server({ port: config.port });
 // Serve built static files on production
 // In development, we use the webpack-dev-server
 if (process.env.NODE_ENV === 'production') {
-  server.register(Inert, () => {
+  server.register(Inert).then(() => {
     server.route({
       method: 'GET',
       path: '/static/{param*}',
@@ -58,10 +58,8 @@ server.register([
     plugin: SimplistAPI,
     options: {},
   },
-]).then(() => {
+]).then(async () => {
   // Start the server
-  server.start((err) => {
-    if (err) { throw err; }
-    console.log('Server running at:', server.info.uri);
-  });
+  await server.start();
+  console.log('Server running at:', server.info.uri);
 });

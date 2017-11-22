@@ -16,7 +16,8 @@
     "test": "npm run lint && NODE_ENV=test npm run test:server && npm run test:client",
     "lint": "eslint .",
     "preinstall": "cd client && yarn install",
-    "deploy": "npm test && NODE_ENV=production npm run build && git add . && git commit -am \"[auto] Build for production\" ; git push heroku master"
+    "heroku-postbuild": "NODE_ENV=production npm run build",
+    "deploy": "npm test && git push heroku master"
   },
   "engines": {
     "node": "8.9.x"

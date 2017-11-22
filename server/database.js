@@ -4,6 +4,9 @@
  */
 const Mongo = require('hapi-mongodb');
 
+// Error code for "collection already exists" error
+const COLLECTION_EXISTS = 48;
+
 exports.register = (server, opts, next) => {
   server.register({
     register: Mongo,
@@ -12,11 +15,11 @@ exports.register = (server, opts, next) => {
   }, () => {
     const db = server.mongo.db;
     db.createCollection('lists', {}, (err) => {
-      if (err) { throw err; }
+      if (err && err.code != COLLECTION_EXISTS) { throw err; }
       server.log(['simplist-database', 'info'], 'Created "lists" collection');
     });
     db.createCollection('items', {}, (err) => {
-      if (err) { throw err; }
+      if (err && err.code != COLLECTION_EXISTS) { throw err; }
       server.log(['simplist-database', 'info'], 'Created "items" collection');
     });
     // Create indices here

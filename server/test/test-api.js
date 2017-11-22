@@ -1,18 +1,16 @@
-const Code = require('code');
+const { expect } = require('code');
 const Lab = require('lab');
 const _ = require('lodash');
 
 const makeServer = require('./make-server');
-const SimplistService = require('../service');
+const { DEFAULT_DESCRIPTION } = require('../service');
 
-const lab = exports.lab = Lab.script();
-const describe = lab.describe;
-const it = lab.it;
-const beforeEach = lab.beforeEach;
-const afterEach = lab.afterEach;
-const expect = Code.expect;
-const DEFAULT_DESCRIPTION = SimplistService.DEFAULT_DESCRIPTION;
-
+const {
+  describe,
+  it,
+  beforeEach,
+  afterEach
+} = exports.lab = Lab.script();
 
 describe('API', () => {
   let server;
@@ -25,7 +23,7 @@ describe('API', () => {
         server = s;
         db = server.mongo.db;
         service = server.simplist.service;
-        // Clear database after each test
+        // Clear database before each test
         service._clearAll().then(resolve, reject);
       });
     })

@@ -4,20 +4,20 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production npm run server",
-    "start:dev": "NODE_ENV=development concurrently \"npm run server:dev\" \"npm run client\"",
+    "start": "NODE_ENV=production yarn run server",
+    "start:dev": "NODE_ENV=development concurrently \"yarn run server:dev\" \"yarn run client\"",
     "server": "node server",
     "server:dev": "nodemon server",
     "client": "node start-client.js",
-    "build": "cd client && npm run build",
+    "build": "cd client && yarn run build",
     "test:server": "lab --assert code -v server/test",
     "test:server:debug": "node --inspect --debug-brk node_modules/.bin/lab server/test",
-    "test:client": "cd client && CI=true npm test",
-    "test": "npm run lint && NODE_ENV=test npm run test:server && npm run test:client",
+    "test:client": "cd client && CI=true yarn test",
+    "test": "yarn run lint && NODE_ENV=test yarn run test:server && yarn run test:client",
     "lint": "eslint .",
     "preinstall": "cd client && yarn install",
-    "heroku-postbuild": "NODE_ENV=production npm run build",
-    "deploy": "npm test && git push heroku master"
+    "heroku-postbuild": "NODE_ENV=production yarn run build",
+    "deploy": "yarn test && git push heroku master"
   },
   "engines": {
     "node": "8.9.x"

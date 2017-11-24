@@ -73,7 +73,7 @@ function ListDetail(props) {
     </Tooltip>
   );
   const label = (
-    <OverlayTrigger trigger="hover" delayShow={800} placement="bottom" overlay={labelTooltip}>
+    <OverlayTrigger delayShow={700} placement="bottom" overlay={labelTooltip}>
       <Label className="ListDetail-label">Public</Label>
     </OverlayTrigger>
   );
@@ -147,44 +147,37 @@ export default class ListDetailContainer extends React.Component {
     error: null,
     description: '',
   }
-  componentDidMount() {
+  async componentDidMount() {
     const listID = this.listID = this.props.params.listID;
-    Client.getList(listID)
-      .then((json) => {
-        this.setState({
-          title: json.title,
-          createdAt: json.createdAt,
-          updatedAt: json.updatedAt,
-          items: json.items || [],
-          description: json.description,
-        });
-        document.title = `Simplist | ${json.title}`;
-      })
-      .catch((error) => {
-        this.setState({ error });
+    try {
+      const json = await Client.getList(listID);
+      this.setState({
+        title: json.title,
+        createdAt: json.createdAt,
+        updatedAt: json.updatedAt,
+        items: json.items || [],
+        description: json.description,
       });
-
-    nesClient.connect().then(() => {
-      function handler(payload) {
-        this.setState(payload);
-      }
-      nesClient.subscribe(`/s/lists/${listID}`, handler.bind(this), (err) => {
-        if (err) { throw err; }
-      });
-    });
+      document.title = `Simplist | ${json.title}`;
+    } catch (error) {
+      this.setState({ error });
+    }
+    await nesClient.connect();
+    function handler(payload) {
+      this.setState(payload);
+    }
+    nesClient.subscribe(`/s/lists/${listID}`, handler.bind(this));
   }
 
-  handleSubmit = (e) => {
+  handleSubmit = async (e) => {
     e.preventDefault();
     const content = this.state.value;
     const listID = this.props.params.listID;
-    Client.addItemToList({ id: listID, content })
-      .then((json) => {
-        this.setState({ items: json.items });
-      });
     this.setState({
       value: '',
     });
+    const json = await Client.addItemToList({ id: listID, content });
+    this.setState({ items: json.items });
   }
 
   handleChange = (e) => {
@@ -238,15 +231,13 @@ export default class ListDetailContainer extends React.Component {
     this.setState({ items: newItems });
   }
 
-  handleTitleChanged = (data) => {
+  handleTitleChanged = async (data) => {
     const title = data.title || 'Untitled List';
     const pageTitle = `Simplist | ${title}`;
     document.title = pageTitle;
     this.setState({ title });
     const listID = this.props.params.listID;
-    Client.updateList({ id: listID, data: { title } }).then(() => {
-      document.title = pageTitle;
-    });
+    await Client.updateList({ id: listID, data: { title } });
   }
 
   handleSortEnd = ({ oldIndex, newIndex }) => {

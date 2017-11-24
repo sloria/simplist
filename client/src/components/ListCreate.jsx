@@ -11,12 +11,10 @@ export default class ListCreate extends React.Component {
   /**
    * Upon mounting, create a new list, then redirect to the list detail
    */
-  componentDidMount() {
+  async componentDidMount() {
     const router = this.props.router;
-    Client.createList({ title: 'Untitled List' })
-      .then((json) => {
-        router.replace(`/lists/${json._id}`);
-      });
+    const json = await Client.createList({ title: 'Untitled List' });
+    router.replace(`/lists/${json._id}`);
     // Only show loading indicator for slow (> 500ms) responses
     setTimeout(() => {
       this.setState({ loaderVisible: true });

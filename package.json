@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production yarn run server",
-    "start:dev": "NODE_ENV=development concurrently \"yarn run server:dev\" \"yarn run client\"",
+    "start:dev": "NODE_ENV=development concurrently -n \"server,client\" \"yarn run server:dev\" \"yarn run client\"",
     "server": "node server",
     "server:dev": "nodemon server",
     "client": "node start-client.js",

@@ -47,7 +47,7 @@ class Index extends Component {
                 <li><Icon type="check-square-o" /> Group brainstorming</li>
                 <li><Icon type="check-square-o" /> Shared to-do lists</li>
                 <li><Icon type="check-square-o" /> Real-time updates</li>
-                <li><Icon type="check-square-o" /> Supports <a href="https://daringfireball.net/projects/markdown/">Markdown</a></li>
+                <li><Icon type="check-square-o" /> <a href="https://daringfireball.net/projects/markdown/">Markdown</a> support</li>
               </ul>
             </Col>
           </Row>

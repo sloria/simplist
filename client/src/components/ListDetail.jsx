@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import Nes from 'nes/client';
 import {
   FormGroup,
@@ -216,11 +217,15 @@ export default class ListDetailContainer extends React.Component {
   finishEditing = (itemID, newValue) => {
     const listID = this.props.params.listID;
     const items = this.state.items;
+    const item = _.find(items, (item) => item._id = itemID);
+    const oldValue = item.content;
     const newItems = updateInArray(items, item => item._id === itemID, () => {
       return { editing: false, content: newValue };
     });
     this.setState({ items: newItems });
-    Client.editItem({ listID, itemID, data: { content: newValue } });
+    if (oldValue !== newValue) {
+      Client.editItem({ listID, itemID, data: { content: newValue } });
+    }
   }
 
   cancelEditing = (itemID) => {

@@ -1,0 +1,21 @@
+{
+  "name": "simplist",
+  "description": "One-click, collaborative lists",
+  "repository": "https://github.com/sloria/simplist",
+  "env": {
+    "REACT_APP_SERVER_PORT": {
+      "description": "API server port",
+      "value": 3001
+    },
+    "REACT_APP_DOMAIN": {
+      "description": "Domain for the app",
+      "value": "simplist.sloria.com"
+    }
+  },
+  "addons": [
+    "mongolab:sandbox"
+  ],
+  "buildpacks": [
+    {"url": "heroku/nodejs"}
+  ]
+}

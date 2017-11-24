@@ -165,7 +165,7 @@ export default class ListDetailContainer extends React.Component {
         this.setState({ error });
       });
 
-    nesClient.connect(() => {
+    nesClient.connect().then(() => {
       function handler(payload) {
         this.setState(payload);
       }

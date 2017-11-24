@@ -20,7 +20,7 @@ export default class ListCreate extends React.Component {
     // Only show loading indicator for slow (> 500ms) responses
     setTimeout(() => {
       this.setState({ loaderVisible: true });
-    }, 2000);
+    }, 500);
   }
   render() {
     const navLinks = [

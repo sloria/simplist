@@ -7,9 +7,13 @@ const SimplistService = require('./service');
 const SimplistDatabase = require('./database');
 const SimplistAPI = require('./api');
 
-const config = require('../shared-config');
 
-const server = new Hapi.Server({ port: config.port });
+// REACT_APP_SERVER_PORT is a misleading name.
+// It is the port that the API sever runs on, not the react app
+// The REACT_APP_ prefix is necessary so that the variable can be
+// used on the frontend, see
+// https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-custom-environment-variables
+const server = new Hapi.Server({ port: process.env.REACT_APP_SERVER_PORT });
 
 const start = async () => {
   // Serve built static files on production

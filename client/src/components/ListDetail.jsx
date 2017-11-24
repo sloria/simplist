@@ -23,10 +23,9 @@ import Header from './Header';
 import CopyInput from './CopyInput';
 
 import { updateInArray } from '../utils';
-import config from '../../../shared-config';
 import './ListDetail.css';
 
-const websocketURI = config.env === 'production' ? `ws://${config.domain}` : `ws://localhost:${config.port}`;
+const websocketURI = process.env.NODE_ENV === 'production' ? `ws://${process.env.REACT_APP_DOMAIN}` : `ws://localhost:${process.env.REACT_APP_SERVER_PORT}`;
 const nesClient = new Nes.Client(websocketURI);
 const timeago = new TimeAgo();
 

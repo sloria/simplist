@@ -11,10 +11,11 @@ const config = require('../shared-config');
 
 const server = new Hapi.Server({ port: config.port });
 
-// Serve built static files on production
-// In development, we use the webpack-dev-server
-if (process.env.NODE_ENV === 'production') {
-  server.register(Inert).then(() => {
+const start = async () => {
+  // Serve built static files on production
+  // In development, we use the webpack-dev-server
+  if (process.env.NODE_ENV === 'production') {
+    await server.register(Inert);
     server.route({
       method: 'GET',
       path: '/static/{param*}',
@@ -34,32 +35,32 @@ if (process.env.NODE_ENV === 'production') {
         file: path.join(__dirname, '..', 'client', 'build', 'index.html'),
       },
     });
-  });
-}
+  }
 
-// Set up the application
-server.register([
-  {
-    plugin: SimplistDatabase,
-    options: {
-      url: process.env.MONGODB_URI,
-      decorate: true,
-    },
-  },
-  {
-    plugin: SimplistService,
-    options: {
-      publish: (listID, payload) => {
-        server.publish(`/s/lists/${listID}`, payload);
+  // Set up the application
+  await server.register([
+    {
+      plugin: SimplistDatabase,
+      options: {
+        url: process.env.MONGODB_URI,
+        decorate: true,
       },
     },
-  },
-  {
-    plugin: SimplistAPI,
-    options: {},
-  },
-]).then(async () => {
-  // Start the server
+    {
+      plugin: SimplistService,
+      options: {
+        publish: (listID, payload) => {
+          server.publish(`/s/lists/${listID}`, payload);
+        },
+      },
+    },
+    {
+      plugin: SimplistAPI,
+      options: {},
+    },
+  ]);
   await server.start();
   console.log('Server running at:', server.info.uri);
-});
+}
+
+start();

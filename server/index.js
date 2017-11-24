@@ -13,7 +13,8 @@ const SimplistAPI = require('./api');
 // The REACT_APP_ prefix is necessary so that the variable can be
 // used on the frontend, see
 // https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-custom-environment-variables
-const server = new Hapi.Server({ port: process.env.REACT_APP_SERVER_PORT });
+// Also note: $PORT is used on heroku. REACT_APP_SERVER_PORT is used for developement.
+const server = new Hapi.Server({ port: process.env.PORT || process.env.REACT_APP_SERVER_PORT });
 
 const start = async () => {
   // Serve built static files on production

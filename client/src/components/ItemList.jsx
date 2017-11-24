@@ -1,4 +1,5 @@
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import { PropTypes as t } from 'prop-types';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 import ListItem from './ListItem';

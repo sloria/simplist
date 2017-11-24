@@ -1,4 +1,5 @@
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import { PropTypes as t } from 'prop-types';
 import ReactDOM from 'react-dom';
 import {
   Button,

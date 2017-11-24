@@ -1,4 +1,5 @@
-import React, { PropTypes as t } from 'react';
+import React from 'react';
+import { PropTypes as t } from 'prop-types';
 import { FormGroup, FormControl, Checkbox } from 'react-bootstrap';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import ReactMarkdown from 'react-markdown';

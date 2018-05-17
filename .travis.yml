@@ -6,3 +6,4 @@ env:
     - TEST_MONGODB_URI=mongodb://127.0.0.1:27017/simplist-test
 node_js:
   - "8"
+  - "10"

@@ -20,7 +20,7 @@
     "deploy": "yarn test && git push heroku master"
   },
   "engines": {
-    "node": "8.9.x"
+    "node": "10"
   },
   "author": "Steven Loria",
   "license": "MIT",

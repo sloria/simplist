@@ -44,7 +44,7 @@
   "devDependencies": {
     "babel-eslint": "^8.0.0",
     "code": "^5.1.2",
-    "concurrently": "3.5.1",
+    "concurrently": "3.6.0",
     "eslint": "^4.11.0",
     "lab": "^15.1.2",
     "nodemon": "^1.11.0"

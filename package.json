@@ -45,7 +45,7 @@
     "babel-eslint": "^8.0.0",
     "code": "^5.1.2",
     "concurrently": "3.5.1",
-    "eslint": "^4.11.0",
+    "eslint": "^5.0.0",
     "lab": "^15.1.2",
     "nodemon": "^1.11.0"
   }

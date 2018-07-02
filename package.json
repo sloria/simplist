@@ -38,7 +38,7 @@
     "joi": "^13.0.2",
     "lodash": "^4.17.2",
     "mongodb": "^3.0.0",
-    "nes": "^7.0.1",
+    "nes": "^9.0.1",
     "socket.io": "^2.0.1"
   },
   "devDependencies": {

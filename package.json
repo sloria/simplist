@@ -32,7 +32,7 @@
     "babel-preset-stage-0": "6.24.1",
     "boom": "^7.1.1",
     "dotenv": "^5.0.0",
-    "hapi": "^17.0.2",
+    "hapi": "17.5.4",
     "hapi-mongodb": "^7.1.0",
     "inert": "^5.0.1",
     "joi": "^13.0.2",
